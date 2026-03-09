@@ -1,47 +1,42 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <v-app>
+    
+    <v-app-bar color="primary" density="compact">
+      <v-app-bar-title>Mi Primer Proyecto Vuetify</v-app-bar-title>
+    </v-app-bar>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
+    <v-main>
+      
+      <v-container>
+        
+        <v-card class="mx-auto mt-5" max-width="400" elevation="4">
+          
+          <v-card-item>
+            <v-card-title>¡Hola, Mundo!</v-card-title>
+            <v-card-subtitle>Probando componentes</v-card-subtitle>
+          </v-card-item>
 
-  <main>
-    <TheWelcome />
-  </main>
+          <v-card-text>
+            Este es mi primer componente de prueba usando la documentación de Vuetify. Poco a poco iré mirando y añadiendo más cosas q vaya haciendo nuevas.
+          </v-card-text>
+
+          <v-card-actions>
+            <v-spacer></v-spacer> <v-btn color="success" variant="flat">
+              Púlsame
+            </v-btn>
+          </v-card-actions>
+          
+        </v-card>
+
+      </v-container>
+    </v-main>
+    
+  </v-app>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-}
+<script setup>
+</script>
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-}
+<style>
+/*no hace falta poner css pq ya se encarga el Vuetify*/
 </style>
