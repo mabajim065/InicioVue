@@ -1,17 +1,14 @@
 <template>
-  <v-app>
-    <v-app-bar color="teal-darken-3" elevation="2">
-      <v-app-bar-title>Mi Proyecto Paso a Paso</v-app-bar-title>
-    </v-app-bar>
+  <DefaultLayout>
+    
+    <HomeView />
 
-    <v-main>
-      <HomeView />
-    </v-main>
-
-  </v-app>
+  </DefaultLayout>
 </template>
 
 <script setup>
+// importo el archivo creado en la carpeta layouts
+import DefaultLayout from './layouts/DefaultLayout.vue'
 // importo el archivo creado en la carpeta view
 import HomeView from './views/HomeView.vue'
 </script>

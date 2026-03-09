@@ -1,10 +1,13 @@
 <template>
   <v-container class="text-center mt-10">
     <h1 class="text-teal-darken-3">Página de Inicio</h1>
-    <p>Poco a poco voya ir  montando la estructura.</p>
+    <p>Ahora pongo la nueva tarjeta.</p>
+
+    <UserCard />
   </v-container>
 </template>
 
 <script setup>
-// Esta es nuestra primera vista independiente
+// importo la tarjeta de Usuario 
+import UserCard from '../components/UserCard.vue'
 </script>
