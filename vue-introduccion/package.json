@@ -7,9 +7,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mdi/font": "^7.4.47",
     "vue": "^3.x.x",
     "vue-router": "^4.x.x"
-},
+  },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.4",
     "vite": "^7.3.1",
