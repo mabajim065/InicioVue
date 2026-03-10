@@ -7,7 +7,7 @@
       </v-avatar>
 
       <v-card-title class="font-weight-regular text-pink-darken-4">
-        Usuario Elegante
+        Usuario de prueba
       </v-card-title>
       <v-card-subtitle>maria@libnamic.com</v-card-subtitle>
     </v-card-item>
