@@ -29,10 +29,10 @@
 
     <v-footer app color="pink-lighten-4" class="text-center d-flex flex-column py-3" elevation="2">
       <div class="text-pink-darken-4 mt-1">
-        {{ new Date().getFullYear() }} — <strong>Guía de Playas Elegante</strong>
+        {{ new Date().getFullYear() }} — <strong>Guía de Playas</strong>
       </div>
       <div class="text-caption text-pink-darken-3 mt-1 mb-1">
-        INtroduccion paso a paso de Vue y Vuetify 
+        Introduccion paso a paso de Vue y Vuetify 
       </div>
     </v-footer>
     
