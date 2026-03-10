@@ -1,20 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import UserDetail from '../views/UserDetail.vue'
+import BeachDetail from '../views/BeachDetail.vue'
 
-// Aquí creamos las "carreteras" de nuestra web
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/', // Cuando la URL no tenga nada, mostramos el Inicio
+      path: '/',
       name: 'inicio',
       component: HomeView
     },
     {
-      path: '/detalles', // Cuando la URL sea /detalles, mostramos el perfil
+      path: '/detalles',
       name: 'detalles',
-      component: UserDetail
+      component: BeachDetail
     }
   ]
 })
