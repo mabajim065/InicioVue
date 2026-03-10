@@ -13,8 +13,8 @@
     </v-card-item>
 
 
-   <v-card-actions class="justify-center pb-6 mt-2">
-      <v-btn color="pink-darken-3" variant="tonal" rounded="pill">
+  <v-card-actions class="justify-center pb-6 mt-2">
+      <v-btn color="pink-darken-3" variant="tonal" rounded="pill" to="/detalles">
         Ver Detalles
       </v-btn>
     </v-card-actions>
