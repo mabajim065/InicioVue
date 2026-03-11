@@ -13,7 +13,7 @@
     </v-card-item>
 
     <v-card-actions class="justify-center pb-5">
-      <v-btn color="pink-darken-3" variant="tonal" rounded="pill" block class="mx-4" to="/detalles">
+      <v-btn color="pink-darken-3" variant="tonal" rounded="pill" block class="mx-4" :to="'/detalles/' + id">
         Info
       </v-btn>
     </v-card-actions>
@@ -22,6 +22,7 @@
 
 <script setup>
 defineProps({
+  id: Number, 
   nombre: String,
   ubicacion: String,
   imagen: String
