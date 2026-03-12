@@ -8,12 +8,12 @@
         loading="lazy"
         @error="handleImageError"
       />
-      <div v-else class="no-image">🖼️</div>
+      <div v-else class="no-image"></div>
     </div>
     <div class="card-body">
       <h3 class="card-title">{{ getTitle }}</h3>
       <p v-if="getAuthor" class="card-author">{{ getAuthor }}</p>
-      <p v-if="getDate" class="card-date">📅 {{ getDate }}</p>
+      <p v-if="getDate" class="card-date"> {{ getDate }}</p>
       <div v-if="record.collections && record.collections.length" class="card-collections">
         <span
           v-for="col in record.collections"
@@ -125,7 +125,6 @@ export default {
   color: #fff;
   line-height: 1.4;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
