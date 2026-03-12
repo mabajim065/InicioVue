@@ -8,11 +8,11 @@ const api = axios.create({
 
 /**
  * Obtiene un listado de registros desde la API 
- * @param {number} offset es el punto de inicio (ej: si es 24, empieza a contar desde el 25).
- * @param {number} limit es la cantidad de resultados por página (por defecto trae 24).
+ * @param {number} offset es el punto de inicio 
+ * @param {number} limit es la cantidad de resultados por página 
  */
 export function getRecords(offset = 0, limit = 24) {
-  // Realizamos una petición tipo GET a la ruta '/record'
+  // Realizamos una petición tipo GET a la ruta /record
   return api.get('/record', {
     // Los 'params' son los filtros que se añaden a la URL 
     params: {
@@ -24,6 +24,49 @@ export function getRecords(offset = 0, limit = 24) {
       
       limit,  
       offset 
+    }
+  })
+}
+
+// ========== DETALLE DE UN RECORD ==========
+
+/**
+ * Obtiene toda la información específica de un solo registro mediante su ID.
+ * @param {string|number} 
+ */
+export function getRecordDetail(id) {
+  // Realiza una petición GET a la ruta específica del recurso 
+  return api.get(`/record/${id}`, {
+    params: {
+      // with_labels: 1 devuelve los nombres legibles de los campos 
+      with_labels: 1,
+      
+      // fields define qué columnas de la base de datos queremos traer:
+      fields: 'id,title,description,canonical_joined_metadata,thumbnail'
+    }
+  })
+}
+
+// ========== COLLECTIONS ==========
+
+
+// Listado de colecciones con paginación
+export function getCollections(offset = 0, limit = 24) {
+  return api.get('/collection', {
+    params: {
+      with_labels: 1,
+      fields: 'id,thumbnail,title,description',
+      limit,
+      offset
+    }
+  })
+}
+
+// ========== DETALLE DE UNA COLECCION ==========
+export function getCollectionDetail(id) {
+  return api.get(`/collection/${id}`, {
+    params: {
+      with_labels: 1
     }
   })
 }
