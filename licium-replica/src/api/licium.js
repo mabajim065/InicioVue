@@ -1,7 +1,10 @@
 import axios from 'axios'
 
+
+// src/api/licium.js
 const api = axios.create({
-  baseURL: 'https://urjc.licium.libnamic.com/api/glam'
+  // Asegúrate de que termine exactamente en /api/glam
+  baseURL: 'https://arcadium.cluster24.libnamic.eu/api/glam' 
 })
 
 // ========== RECORDS ==========
@@ -49,7 +52,6 @@ export function getRecordDetail(id) {
 
 // ========== COLLECTIONS ==========
 
-
 // Listado de colecciones con paginación
 export function getCollections(offset = 0, limit = 24) {
   return api.get('/collection', {
@@ -70,4 +72,3 @@ export function getCollectionDetail(id) {
     }
   })
 }
-

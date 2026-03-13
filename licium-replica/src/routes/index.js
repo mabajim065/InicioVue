@@ -6,12 +6,10 @@ import CollectionList from '../views/CollectionList.vue'
 import CollectionDetail from '../views/CollectionDetail.vue'
 
 const routes = [
-  // registros
   {
     path: '/',
     redirect: '/record'
   },
-  // Listado y ficha de Registros
   {
     path: '/record',
     name: 'RecordList',
@@ -22,7 +20,6 @@ const routes = [
     name: 'RecordDetail',
     component: RecordDetail
   },
-  // Listado y contenido de Colecciones
   {
     path: '/collections',
     name: 'CollectionList',
@@ -35,7 +32,6 @@ const routes = [
   }
 ]
 
-// confi del navegador
 const router = createRouter({
   history: createWebHistory(),
   routes
