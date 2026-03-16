@@ -46,19 +46,13 @@ export default {
       error: null
     }
   },
-  computed: {
-    getTitle() {
-      if (!this.collection?.title) return 'Sin título'
-      if (typeof this.collection.title === 'string') return this.collection.title
-      const keys = Object.keys(this.collection.title)
-      return keys.length > 0 ? this.collection.title[keys[0]] : 'Sin título'
-    },
-    getDescription() {
-      if (!this.collection?.description) return null
-      if (typeof this.collection.description === 'string') return this.collection.description
-      const keys = Object.keys(this.collection.description)
-      return keys.length > 0 ? this.collection.description[keys[0]] : null
-    }
+ computed: {
+  getTitle() {
+    return this.collection?.title?.value || this.collection?.title || 'Sin título';
+  },
+  getDescription() {
+    return this.collection?.description?.value || this.collection?.description || '';
+  }
   },
   created() {
     this.fetchCollection()
