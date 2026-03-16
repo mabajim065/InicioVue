@@ -57,9 +57,19 @@ export function getCollections(offset = 0, limit = 24) {
   return api.get('/collection', {
     params: {
       with_labels: 1,
-      fields: 'id,thumbnail,title,description',
+      fields: 'id,thumbnail,title,description', // Añadimos los campos necesarios
       limit,
       offset
+    }
+  })
+}
+
+// Detalle de una colección específica (ESTO TE FALTABA)
+export function getCollectionDetail(id) {
+  return api.get(`/collection/${id}`, {
+    params: {
+      with_labels: 1,
+      fields: 'id,title,description,records.id,records.title,records.thumbnail'
     }
   })
 }
