@@ -87,18 +87,14 @@ export default {
         this.loading = false
       }
     },
-    formatKey(key) {
-      return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-    },
-    // Formatea los valores de la tabla
-    formatValue(value) {
-      if (Array.isArray(value)) return value.join(', ')
-      if (typeof value === 'object' && value !== null) {
-        const keys = Object.keys(value)
-        return keys.length > 0 ? value[keys[0]] : JSON.stringify(value)
-      }
-      return value
-    }
+   formatKey(key) {
+  if (!key) return '';
+  const parts = key.split('.');
+  return parts[parts.length - 1].replace(/_/g, ' ').toUpperCase();
+},
+formatValue(val) {
+  return Array.isArray(val) ? val.join(', ') : val;
+}
   }
 }
 </script>
