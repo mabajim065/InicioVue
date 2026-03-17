@@ -2,13 +2,13 @@
   <router-link :to="`/record/${record.id}`" class="record-card">
     <div class="card-image">
       <img
-        v-if="record.thumbnail"
-        :src="record.thumbnail"
+        v-if="imageUrl"
+        :src="imageUrl"
         :alt="getTitle"
         loading="lazy"
         @error="handleImageError"
       />
-      <div v-else class="no-image"></div>
+      <div v-else class="no-image">🖼️</div>
     </div>
     <div class="card-body">
       <h3 class="card-title">{{ getTitle }}</h3>
@@ -36,6 +36,25 @@ export default {
     }
   },
   computed: {
+    imageUrl() {
+      let thumb = this.record.thumbnail;
+      if (!thumb) return null;
+
+      // Si el thumbnail viene como un objeto con idiomas
+      if (typeof thumb === 'object') {
+        const keys = Object.keys(thumb);
+        thumb = keys.length > 0 ? thumb[keys[0]] : null;
+      }
+
+      if (!thumb) return null;
+
+      // Si la ruta es relativa (no empieza por http), le pegamos la base de la URJC
+      if (!thumb.startsWith('http')) {
+        return `https://urjc.licium.libnamic.com${thumb}`;
+      }
+      
+      return thumb;
+    },
     getTitle() {
       if (!this.record.title) return 'Sin título'
       if (typeof this.record.title === 'string') return this.record.title
@@ -58,7 +77,8 @@ export default {
   },
   methods: {
     handleImageError(e) {
-      e.target.style.display = 'none'
+      // Si falla la imagen, ponemos un placeholder rosado sutil
+      e.target.src = 'https://via.placeholder.com/300x400/1a1a2e/ff4d8d?text=Licium'
     }
   }
 }
@@ -66,39 +86,41 @@ export default {
 
 <style scoped>
 .record-card {
-  background: #1a1a2e;
+  background: var(--card-bg);
   border-radius: 12px;
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 77, 141, 0.2); /* Borde rosita sutil */
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .record-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(255, 77, 141, 0.15);
-  border-color: rgba(255, 77, 141, 0.3);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(255, 77, 141, 0.3);
+  border-color: var(--primary-pink);
 }
 
 .card-image {
   width: 100%;
-  aspect-ratio: 4/3;
+  aspect-ratio: 3/4; /* Cambiado a formato libro/vertical */
   overflow: hidden;
   background: #12121f;
+  position: relative;
 }
 
 .card-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.6s ease;
 }
 
 .record-card:hover .card-image img {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .no-image {
@@ -107,52 +129,60 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3rem;
-  opacity: 0.3;
+  font-size: 2rem;
+  background: linear-gradient(135deg, #1a1a2e, #2a1a2e);
+  color: var(--primary-pink);
+  opacity: 0.5;
 }
 
 .card-body {
-  padding: 1rem 1.2rem 1.2rem;
+  padding: 1.2rem;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
+  background: linear-gradient(to bottom, transparent, rgba(255, 77, 141, 0.05));
 }
 
 .card-title {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
   color: #fff;
   line-height: 1.4;
+  margin: 0;
   display: -webkit-box;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .card-author {
-  font-size: 0.82rem;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  color: var(--soft-pink);
+  margin: 0;
 }
 
 .card-date {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.4);
+  margin: 0;
 }
 
 .card-collections {
   margin-top: auto;
-  padding-top: 0.5rem;
+  padding-top: 0.8rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
+  gap: 0.4rem;
 }
 
 .collection-badge {
   font-size: 0.7rem;
-  background: rgba(255, 77, 141, 0.12);
-  color: #ff85b1;
-  padding: 0.2rem 0.6rem;
-  border-radius: 20px;
-  white-space: nowrap;
+  background: var(--primary-pink);
+  color: #fff;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 </style>

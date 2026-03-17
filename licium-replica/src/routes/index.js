@@ -7,9 +7,9 @@ import CollectionDetail from '../views/CollectionDetail.vue'
 
 const routes = [
   {
-    path: '/',
-    redirect: '/record'
-  },
+  path: '/',
+  redirect: '/record'
+},
   {
     path: '/record',
     name: 'RecordList',
