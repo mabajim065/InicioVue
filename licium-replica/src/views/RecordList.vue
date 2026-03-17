@@ -17,7 +17,11 @@
 
     <template v-else>
       <div class="records-grid">
-        <RecordCard v-for="record in records" :key="record.id" :record="record" />
+        <RecordCard 
+          v-for="record in records" 
+          :key="record.id" 
+          :record="record" 
+        />
       </div>
       
       <Pagination 
@@ -56,26 +60,31 @@ export default {
   },
   methods: {
     async fetchRecords() {
-      this.loading = true
-      this.error = null
+      this.loading = true;
+      this.error = null;
       try {
-        const offset = (this.currentPage - 1) * this.limit
-        const response = await getRecords(offset, this.limit)
+        const offset = (this.currentPage - 1) * this.limit;
+        const response = await getRecords(offset, this.limit);
         
-        const dataRaw = response.data.items || response.data.data || []
-        this.records = dataRaw.filter(r => r !== null)
-        this.totalRecords = response.data.total || this.records.length
+        // Según tu consola, los datos están en response.data.items
+        const dataRaw = response.data?.items || [];
+        this.records = dataRaw.filter(r => r !== null);
+        
+        // Total de registros para la paginación
+        this.totalRecords = response.data?.total || 0;
+
       } catch (err) {
-        console.error('Error al cargar records:', err)
-        this.error = 'No se pudieron cargar los registros.'
+        console.error('Error en la petición:', err);
+        this.error = 'No se pudieron cargar los registros.';
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
+    // ESTE MÉTODO FALTABA Y HACÍA QUE LA APP NO PINTARA NADA
     goToPage(page) {
-      this.currentPage = page
-      this.fetchRecords()
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      this.currentPage = page;
+      this.fetchRecords();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 }
@@ -109,6 +118,7 @@ export default {
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 2rem;
   margin-bottom: 3rem;
+  min-height: 200px; /* Asegura espacio para el contenido */
 }
 
 .error {

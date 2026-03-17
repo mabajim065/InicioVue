@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://urjc.licium.libnamic.com/api/glam' 
+  baseURL: 'https://arcadium.cluster24.libnamic.eu/api/glam' 
 })
 
 export function getRecords(offset = 0, limit = 24) {

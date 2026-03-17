@@ -4,17 +4,17 @@
       <h1>Colecciones</h1>
       <p>Explora las colecciones disponibles</p>
     </div>
-
+ 
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
       <p>Cargando colecciones...</p>
     </div>
-
+ 
     <div v-else-if="error" class="error">
       <p>{{ error }}</p>
       <button @click="fetchCollections">Reintentar</button>
     </div>
-
+ 
     <template v-else>
       <div class="collections-grid">
         <router-link
@@ -24,8 +24,8 @@
           class="collection-card"
         >
           <div class="col-image">
-            <img v-if="col.thumbnail" :src="col.thumbnail" :alt="getColTitle(col)" loading="lazy" />
-            <div v-else class="no-image"></div>
+            <img v-if="getColThumbnail(col)" :src="getColThumbnail(col)" :alt="getColTitle(col)" loading="lazy" @error="handleImageError" />
+            <div v-else class="no-image">🖼️</div>
           </div>
           <div class="col-body">
             <h3>{{ getColTitle(col) }}</h3>
@@ -33,18 +33,18 @@
           </div>
         </router-link>
       </div>
-
+ 
       <Pagination :current-page="currentPage" :total-pages="totalPages" @page-change="goToPage" />
     </template>
   </div>
 </template>
-
+ 
 <script>
 import { getCollections } from '../api/licium.js'
 import Pagination from '../components/Pagination.vue'
-
+ 
 export default {
-  components: { Pagination }, // <-- Aquí faltaba la coma en tu imagen
+  components: { Pagination },
   data() {
     return {
       collections: [],
@@ -70,15 +70,10 @@ export default {
       try {
         const offset = (this.currentPage - 1) * this.limit;
         const response = await getCollections(offset, this.limit);
-        
-        // Usamos .items porque así lo vimos en tu consola
         const dataRaw = response.data.items || response.data.data || [];
-        
-        // Filtramos nulos para que no explote la app
-        this.collections = Array.isArray(dataRaw) 
-          ? dataRaw.filter(c => c !== null && typeof c === 'object') 
+        this.collections = Array.isArray(dataRaw)
+          ? dataRaw.filter(c => c !== null && typeof c === 'object')
           : [];
-
         this.totalCollections = response.data.total || this.collections.length;
       } catch (err) {
         console.error('Error:', err);
@@ -92,6 +87,22 @@ export default {
       this.fetchCollections();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
+    getColThumbnail(col) {
+      let thumb = col.thumbnail;
+      if (!thumb) return null;
+ 
+      // Si es un objeto de idiomas, extraer el primer valor
+      if (typeof thumb === 'object') {
+        const keys = Object.keys(thumb);
+        thumb = keys.length > 0 ? thumb[keys[0]] : null;
+      }
+ 
+      if (!thumb) return null;
+      if (thumb.startsWith('http')) return thumb;
+ 
+      const path = thumb.startsWith('/') ? thumb : `/${thumb}`;
+      return `https://arcadium.cluster24.libnamic.eu${path}`;
+    },
     getColTitle(col) {
       if (!col.title) return 'Sin título';
       if (typeof col.title === 'string') return col.title;
@@ -103,11 +114,14 @@ export default {
       if (typeof col.description === 'string') return col.description;
       const keys = Object.keys(col.description);
       return keys.length > 0 ? col.description[keys[0]] : null;
+    },
+    handleImageError(e) {
+      e.target.style.display = 'none';
     }
   }
 }
 </script>
-
+ 
 <style scoped>
 .page-header { text-align: center; margin-bottom: 2rem; }
 .page-header h1 { font-size: 2rem; color: #fff; margin-bottom: 0.3rem; }
@@ -115,8 +129,9 @@ export default {
 .collections-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
 .collection-card { background: #1a1a2e; border-radius: 12px; overflow: hidden; text-decoration: none; color: inherit; transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.05); }
 .collection-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(255, 77, 141, 0.15); border-color: rgba(255, 77, 141, 0.3); }
-.col-image { width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #12121f; }
+.col-image { width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #12121f; display: flex; align-items: center; justify-content: center; }
 .col-image img { width: 100%; height: 100%; object-fit: cover; }
+.no-image { font-size: 3rem; opacity: 0.2; }
 .col-body { padding: 1.2rem; }
 .col-body h3 { font-size: 1.05rem; color: #fff; margin-bottom: 0.4rem; }
 .col-desc { font-size: 0.85rem; color: rgba(255, 255, 255, 0.5); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; }
