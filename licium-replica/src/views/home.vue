@@ -8,7 +8,7 @@
       </div>
 
       <div class="hero-content">
-        <p class="eyebrow">Proyecto Final · Vue + API REST</p>
+        <p class="eyebrow">Replica Licium con Vue</p>
         <h1 class="hero-title">
           <span class="line-1">Licium</span>
           <span class="line-2">Replica</span>
