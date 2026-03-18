@@ -21,6 +21,11 @@ import Navbar from './components/Navbar.vue'
   --glass-pink: rgba(255, 77, 141, 0.15);
 }
 
+/* Reset global para evitar scroll horizontal */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -28,12 +33,15 @@ body {
   color: #fff;
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
+  width: 100%;
 }
 
 .app-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .content {
@@ -45,37 +53,15 @@ body {
   box-sizing: border-box;
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--primary-pink); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--soft-pink); }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-dark);
-}
+h1, h2, h3, h4 { color: #fff; margin-top: 0; }
 
-::-webkit-scrollbar-thumb {
-  background: var(--primary-pink);
-  border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--soft-pink);
-}
-
-h1, h2, h3, h4 {
-  color: #fff;
-  margin-top: 0;
-}
-
-a {
-  color: var(--soft-pink);
-  text-decoration: none;
-  transition: all 0.3s ease;
-}
-
-a:hover {
-  color: var(--primary-pink);
-}
+a { color: var(--soft-pink); text-decoration: none; transition: all 0.3s ease; }
+a:hover { color: var(--primary-pink); }
 
 button {
   background-color: var(--primary-pink);
@@ -90,19 +76,8 @@ button {
   align-items: center;
   justify-content: center;
 }
-
-button:hover {
-  background-color: var(--hover-pink);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(255, 77, 141, 0.4);
-}
-
-button:disabled {
-  background-color: #333;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
+button:hover { background-color: var(--hover-pink); transform: translateY(-1px); box-shadow: 0 4px 15px rgba(255, 77, 141, 0.4); }
+button:disabled { background-color: #333; cursor: not-allowed; transform: none; box-shadow: none; }
 
 .loading-container {
   display: flex;
@@ -114,8 +89,7 @@ button:disabled {
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
+  width: 40px; height: 40px;
   border: 3px solid rgba(255, 77, 141, 0.2);
   border-top-color: var(--primary-pink);
   border-radius: 50%;
@@ -123,12 +97,9 @@ button:disabled {
   margin-bottom: 1rem;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 @media (max-width: 768px) {
-  .content {
-    padding: 1rem;
-  }
+  .content { padding: 1rem; }
 }
 </style>

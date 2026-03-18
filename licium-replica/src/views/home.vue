@@ -1,12 +1,14 @@
 <template>
   <div class="home">
     <div class="hero">
+      <!-- Fondo decorativo con blobs animados -->
       <div class="hero-bg">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
         <div class="blob blob-3"></div>
       </div>
 
+      <!-- Contenido central -->
       <div class="hero-content">
         <p class="eyebrow">Replica Licium con Vue</p>
         <h1 class="hero-title">
@@ -19,6 +21,7 @@
           fotografías y colecciones culturales.
         </p>
 
+        <!-- Botones de navegación -->
         <div class="hero-buttons">
           <router-link to="/record" class="btn btn-primary">
             Ver Records
@@ -30,6 +33,7 @@
         </div>
       </div>
 
+      <!-- Badges informativos -->
       <div class="hero-badge">
         <div class="badge-inner">
           <span class="badge-num">24+</span>
@@ -42,6 +46,7 @@
       </div>
     </div>
 
+    <!-- Sección de info sobre el proyecto -->
     <section class="about">
       <div class="about-card">
         <span class="about-tag">Sobre el proyecto</span>
@@ -73,12 +78,14 @@ export default {
 <style scoped>
 .home {
   min-height: 80vh;
+  /* Evita scroll horizontal por los blobs */
+  overflow-x: hidden;
 }
-
 
 .hero {
   position: relative;
   padding: 5rem 2rem 4rem;
+  /* Corta cualquier cosa que se salga del hero */
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -92,6 +99,8 @@ export default {
   inset: 0;
   pointer-events: none;
   z-index: 0;
+  /* Corta los blobs que se salen */
+  overflow: hidden;
 }
 
 .blob {
@@ -127,6 +136,7 @@ export default {
   position: relative;
   z-index: 1;
   max-width: 640px;
+  width: 100%;
 }
 
 .eyebrow {
@@ -146,14 +156,14 @@ export default {
 }
 
 .line-1 {
-  font-size: clamp(3.5rem, 10vw, 6.5rem);
+  font-size: clamp(2.5rem, 10vw, 6.5rem);
   font-weight: 800;
   color: #fff;
   letter-spacing: -3px;
 }
 
 .line-2 {
-  font-size: clamp(3.5rem, 10vw, 6.5rem);
+  font-size: clamp(2.5rem, 10vw, 6.5rem);
   font-weight: 800;
   letter-spacing: -3px;
   background: linear-gradient(90deg, #ff4d8d, #ffadd0);
@@ -199,12 +209,8 @@ export default {
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(255, 77, 141, 0.5);
 }
-.btn-arrow {
-  transition: transform 0.3s;
-}
-.btn-primary:hover .btn-arrow {
-  transform: translateX(4px);
-}
+.btn-arrow { transition: transform 0.3s; }
+.btn-primary:hover .btn-arrow { transform: translateX(4px); }
 
 .btn-secondary {
   background: transparent;
@@ -217,12 +223,13 @@ export default {
   transform: translateY(-2px);
 }
 
-
 .hero-badge {
   position: relative;
   z-index: 1;
   display: flex;
   gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .badge-inner {
@@ -250,7 +257,6 @@ export default {
   margin-top: 0.3rem;
 }
 
-
 .about {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -258,6 +264,7 @@ export default {
   padding: 0 2rem 4rem;
   max-width: 900px;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .about-card {
@@ -288,8 +295,12 @@ export default {
   font-weight: 600;
 }
 
+/* Responsive móvil */
 @media (max-width: 600px) {
-  .about { grid-template-columns: 1fr; }
-  .hero-badge { flex-wrap: wrap; justify-content: center; }
+  .hero { padding: 3rem 1rem 2rem; gap: 2rem; }
+  .about { grid-template-columns: 1fr; padding: 0 0 3rem; }
+  .hero-desc { font-size: 0.9rem; }
+  .btn { width: 100%; justify-content: center; }
+  .hero-buttons { width: 100%; flex-direction: column; }
 }
 </style>
