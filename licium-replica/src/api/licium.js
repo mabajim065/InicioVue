@@ -1,9 +1,11 @@
 import axios from 'axios'
 
+
 const api = axios.create({
-  baseURL: 'https://arcadium.cluster24.libnamic.eu/api/glam' 
+  baseURL: 'https://arcadium.cluster24.libnamic.eu/api/glam'
 })
 
+// Obtiene el listado de records con paginación
 export function getRecords(offset = 0, limit = 24) {
   return api.get('/record', {
     params: {
@@ -25,6 +27,7 @@ export function getRecordDetail(id) {
   })
 }
 
+// Obtiene el listado de colecciones con paginación
 export function getCollections(offset = 0, limit = 24) {
   return api.get('/collection', {
     params: {
@@ -36,7 +39,7 @@ export function getCollections(offset = 0, limit = 24) {
   })
 }
 
-// SOLO UNA VEZ ESTA FUNCIÓN:
+// Obtiene el detalle de una colección con sus records
 export function getCollectionDetail(id) {
   return api.get(`/collection/${id}`, {
     params: {
