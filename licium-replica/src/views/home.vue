@@ -46,7 +46,7 @@
       </div>
     </div>
 
-    <!-- Sección de info sobre el proyecto -->
+
     <section class="about">
       <div class="about-card">
         <span class="about-tag">Sobre el proyecto</span>
@@ -295,7 +295,7 @@ export default {
   font-weight: 600;
 }
 
-/* Responsive móvil */
+/* Responsive movil */
 @media (max-width: 600px) {
   .hero { padding: 3rem 1rem 2rem; gap: 2rem; }
   .about { grid-template-columns: 1fr; padding: 0 0 3rem; }
