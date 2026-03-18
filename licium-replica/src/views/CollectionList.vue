@@ -83,6 +83,8 @@ export default {
       this.error = null
       try {
         const offset = (this.currentPage - 1) * this.limit
+        //Llamar a la apin 
+        const response = await getCollections(offset, this.limit)
         const data = response.data
         const dataRaw = data?.items || data?.data?.items || data?.data || []
         this.collections = Array.isArray(dataRaw) ? dataRaw.filter(c => c !== null && typeof c === 'object') : []

@@ -75,6 +75,8 @@ export default {
       this.error = null
       try {
          const offset = (this.currentPage - 1) * this.limit
+      //Llamar a la api
+        const response = await getRecords(offset, this.limit) 
       // Guardamos response.data en una variable corta para no repetirlo
         const data = response.data
       // Buscamos los registros donde sea que los mande la API
