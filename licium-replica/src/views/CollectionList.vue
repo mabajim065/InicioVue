@@ -83,12 +83,10 @@ export default {
       this.error = null
       try {
         const offset = (this.currentPage - 1) * this.limit
-        const response = await getCollections(offset, this.limit)
-        const dataRaw = response.data.items || response.data.data || []
-        this.collections = Array.isArray(dataRaw)
-          ? dataRaw.filter(c => c !== null && typeof c === 'object')
-          : []
-        this.totalCollections = response.data.total || this.collections.length
+        const data = response.data
+        const dataRaw = data?.items || data?.data?.items || data?.data || []
+        this.collections = Array.isArray(dataRaw) ? dataRaw.filter(c => c !== null && typeof c === 'object') : []
+        this.totalCollections = data?.total || data?.data?.total || this.collections.length
       } catch (err) {
         console.error('Error:', err)
         this.error = 'No se pudieron cargar las colecciones.'

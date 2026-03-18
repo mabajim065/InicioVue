@@ -126,4 +126,9 @@ button:disabled {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+@media (max-width: 768px) {
+  .content {
+    padding: 1rem;
+  }
+}
 </style>

@@ -74,11 +74,16 @@ export default {
       this.loading = true
       this.error = null
       try {
-        const offset = (this.currentPage - 1) * this.limit
-        const response = await getRecords(offset, this.limit)
-        const dataRaw = response.data?.items || []
-        this.records = dataRaw.filter(r => r !== null)
-        this.totalRecords = response.data?.total || 0
+         const offset = (this.currentPage - 1) * this.limit
+      // Guardamos response.data en una variable corta para no repetirlo
+        const data = response.data
+      // Buscamos los registros donde sea que los mande la API
+        const dataRaw = data?.items || data?.data?.items || data?.data || []
+      // Si es un array validoquitamos los nulos. Si no, usamos array vacío
+        this.records = Array.isArray(dataRaw) ? dataRaw.filter(r => r !== null) : []
+      // Cogemos el total de registros o si no viene lo contamos nosotros
+        this.totalRecords = data?.total || data?.data?.total || this.records.length
+
       } catch (err) {
         console.error('Error en la petición:', err)
         this.error = 'No se pudieron cargar los registros.'
