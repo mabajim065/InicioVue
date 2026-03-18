@@ -1,4 +1,4 @@
-/* Reset básico - eliminados los estilos por defecto de Vite */
+
 *, *::before, *::after {
   box-sizing: border-box;
 }

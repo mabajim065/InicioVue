@@ -99,7 +99,7 @@ export default {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  /* Corta los blobs que se salen */
+
   overflow: hidden;
 }
 
