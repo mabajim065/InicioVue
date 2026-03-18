@@ -21,6 +21,14 @@ import Navbar from './components/Navbar.vue'
   --glass-pink: rgba(255, 77, 141, 0.15);
 }
 
+/* Resetea los estilos que mete Vite por defecto en #app */
+#app {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
 /* Reset global para evitar scroll horizontal */
 *, *::before, *::after {
   box-sizing: border-box;
