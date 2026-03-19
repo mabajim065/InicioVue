@@ -2,7 +2,7 @@ import axios from 'axios'
 
 
 const api = axios.create({
-  baseURL: 'https://arcadium.cluster24.libnamic.eu/api/glam'
+  baseURL: '/api/glam'
 })
 
 // Obtiene el listado de records con paginación
