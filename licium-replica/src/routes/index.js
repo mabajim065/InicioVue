@@ -6,6 +6,7 @@ import RecordList from '../views/RecordList.vue'
 import RecordDetail from '../views/RecordDetail.vue'
 import CollectionList from '../views/CollectionList.vue'
 import CollectionDetail from '../views/CollectionDetail.vue'
+import Buscador from '../views/Buscador.vue'
 
 // Definición de rutas
 const routes = [
