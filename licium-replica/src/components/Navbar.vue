@@ -4,25 +4,27 @@
 
       <router-link to="/" class="navbar-brand">Licium Replica</router-link>
 
-      <!-- Boton hamburguesa -->
+      <!-- Botón hamburguesa  -->
       <button class="hamburger" @click="menuAbierto = !menuAbierto" aria-label="Menú">
         <span :class="{ open: menuAbierto }"></span>
         <span :class="{ open: menuAbierto }"></span>
         <span :class="{ open: menuAbierto }"></span>
       </button>
 
-      <!-- Links de navegación  -->
+      <!-- Links escritorio -->
       <div class="navbar-links desktop">
         <router-link to="/record" class="nav-link" active-class="active">Records</router-link>
         <router-link to="/collections" class="nav-link" active-class="active">Colecciones</router-link>
+        <router-link to="/buscador" class="nav-link" active-class="active">Buscador</router-link>
       </div>
 
     </div>
 
-    <!-- menu desplegable para el movil-->
+    <!-- Menú desplegable móvil -->
     <div class="mobile-menu" :class="{ open: menuAbierto }">
       <router-link to="/record" class="mobile-link" active-class="active" @click="menuAbierto = false">Records</router-link>
       <router-link to="/collections" class="mobile-link" active-class="active" @click="menuAbierto = false">Colecciones</router-link>
+      <router-link to="/buscador" class="mobile-link" active-class="active" @click="menuAbierto = false">Buscador</router-link>
     </div>
 
   </nav>
@@ -32,12 +34,12 @@
 export default {
   data() {
     return {
-      // Controla si el menu del movi esta abietrto o cerrao
+      // Controla si el menú móvil está abierto o cerrado
       menuAbierto: false
     }
   },
   watch: {
-    // Cierra el menu al cambiar de página
+    // Cierra el menú al cambiar de página
     $route() {
       this.menuAbierto = false
     }
@@ -57,7 +59,6 @@ export default {
   width: 100%;
   box-sizing: border-box;
 }
-
 .navbar-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -66,7 +67,6 @@ export default {
   justify-content: space-between;
   height: 56px;
 }
-
 .navbar-brand {
   color: #fff;
   font-size: 1.1rem;
@@ -74,12 +74,10 @@ export default {
   text-decoration: none;
   white-space: nowrap;
 }
-
 .navbar-links.desktop {
   display: flex;
   gap: 0.5rem;
 }
-
 .nav-link {
   color: rgba(255,255,255,0.7);
   text-decoration: none;
@@ -90,13 +88,10 @@ export default {
   transition: all 0.3s ease;
   white-space: nowrap;
 }
-
 .nav-link:hover, .nav-link.active {
   color: #ff85b1;
   background: rgba(255, 77, 141, 0.1);
 }
-
-/* Boton hamburguesa */
 .hamburger {
   display: none;
   flex-direction: column;
@@ -108,7 +103,6 @@ export default {
   padding: 0.4rem;
   box-shadow: none;
 }
-
 .hamburger span {
   display: block;
   width: 24px;
@@ -118,13 +112,9 @@ export default {
   transition: all 0.3s ease;
   transform-origin: center;
 }
-
-/* Animacion a X cuando para cunedoi esta abierto */
 .hamburger span:nth-child(1).open { transform: translateY(7px) rotate(45deg); }
 .hamburger span:nth-child(2).open { opacity: 0; }
 .hamburger span:nth-child(3).open { transform: translateY(-7px) rotate(-45deg); }
-
-/* Menu movil desplegable */
 .mobile-menu {
   max-height: 0;
   overflow: hidden;
@@ -132,11 +122,7 @@ export default {
   display: flex;
   flex-direction: column;
 }
-
-.mobile-menu.open {
-  max-height: 200px;
-}
-
+.mobile-menu.open { max-height: 250px; }
 .mobile-link {
   color: rgba(255,255,255,0.7);
   text-decoration: none;
@@ -146,12 +132,7 @@ export default {
   border-bottom: 1px solid rgba(255, 77, 141, 0.1);
   transition: color 0.3s;
 }
-
-.mobile-link:hover, .mobile-link.active {
-  color: #ff85b1;
-}
-
-/* En movil mostrar hamburgues los ocultar links */
+.mobile-link:hover, .mobile-link.active { color: #ff85b1; }
 @media (max-width: 600px) {
   .hamburger { display: flex; }
   .navbar-links.desktop { display: none; }
