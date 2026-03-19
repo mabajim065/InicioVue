@@ -37,6 +37,12 @@ const routes = [
     path: '/collections/:id',
     name: 'CollectionDetail',
     component: CollectionDetail
+  },
+  {
+    // Página de buscador
+    path: '/buscador',
+    name: 'Buscador',
+    component: Buscador
   }
 ]
 
