@@ -48,3 +48,24 @@ export function getCollectionDetail(id) {
     }
   })
 }
+// busca los records
+export function searchRecords({ query = '', field = 'title', offset = 0, limit = 24 } = {}) {
+  const params = {
+    with_labels: 1,
+    search_all_languages: 1,
+    fields: 'thumbnail,title,author,date,collections.id,collections.title,id',
+    limit,
+    offset
+  }
+ 
+  // añade el filtro de busqueda 
+  if (query) {
+    if (field === 'title') params['search[title]'] = query
+    else if (field === 'author') params['search[author]'] = query
+    else if (field === 'date') params['search[date]'] = query
+    else if (field === 'collection') params['search[collections.title]'] = query
+    else params['search[title]'] = query
+  }
+ 
+  return api.get('/record', { params })
+}
