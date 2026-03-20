@@ -1,6 +1,5 @@
 import axios from 'axios'
 
-
 const api = axios.create({
   baseURL: '/api/glam'
 })
@@ -18,6 +17,7 @@ export function getRecords(offset = 0, limit = 24) {
   })
 }
 
+// Obtiene el detalle de un record por su id
 export function getRecordDetail(id) {
   return api.get(`/record/${id}`, {
     params: {
@@ -48,8 +48,9 @@ export function getCollectionDetail(id) {
     }
   })
 }
-// busca los records
-export function searchRecords({ query = '', field = 'title', offset = 0, limit = 24 } = {}) {
+
+// Busca records EL PARAMETRO CORRECTO DE LA API ES SEARCH POR ESO NO ME FUNCIONABA ANTES
+export function searchRecords({ query = '', offset = 0, limit = 24 } = {}) {
   const params = {
     with_labels: 1,
     search_all_languages: 1,
@@ -57,15 +58,9 @@ export function searchRecords({ query = '', field = 'title', offset = 0, limit =
     limit,
     offset
   }
- 
-  // añade el filtro de busqueda 
-  if (query) {
-    if (field === 'title') params['search[title]'] = query
-    else if (field === 'author') params['search[author]'] = query
-    else if (field === 'date') params['search[date]'] = query
-    else if (field === 'collection') params['search[collections.title]'] = query
-    else params['search[title]'] = query
-  }
- 
+
+  // CON ESTO AÑADO LOS TERMIINOS DE BUSQUEDA QUE EXISTEN
+  if (query) params['search'] = query
+
   return api.get('/record', { params })
 }

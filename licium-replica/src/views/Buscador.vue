@@ -4,13 +4,11 @@
     <!-- Cabecera -->
     <div class="page-header">
       <h1>Buscador</h1>
-      <p>Encuentra registros por título, autor, fecha o colección</p>
+      <p>Encuentra registros por título, autor o cualquier campo</p>
     </div>
 
     <!-- Formulario de búsqueda -->
     <div class="search-form">
-
-      <!-- Caja de texto -->
       <div class="search-input-wrap">
         <input
           v-model="query"
@@ -20,25 +18,9 @@
           @keyup.enter="buscar"
         />
       </div>
-
-      <!-- Selector de campo -->
-      <div class="search-filters">
-        <button
-          v-for="f in filtros"
-          :key="f.value"
-          class="filter-btn"
-          :class="{ active: campo === f.value }"
-          @click="campo = f.value"
-        >
-          {{ f.label }}
-        </button>
-      </div>
-
-      <!-- Botón buscar -->
       <button class="btn-buscar" @click="buscar">
         Buscar →
       </button>
-
     </div>
 
     <!-- Estado de carga -->
@@ -54,7 +36,9 @@
 
     <!-- Resultados -->
     <template v-else-if="resultados.length > 0">
-      <p class="results-count">{{ totalResultados }} resultado{{ totalResultados !== 1 ? 's' : '' }} para "<strong>{{ queryBuscada }}</strong>"</p>
+      <p class="results-count">
+        {{ totalResultados }} resultado{{ totalResultados !== 1 ? 's' : '' }} para "<strong>{{ queryBuscada }}</strong>"
+      </p>
       <div class="results-grid">
         <RecordCard
           v-for="record in resultados"
@@ -71,7 +55,7 @@
 
     <!-- Estado inicial -->
     <div v-else class="initial">
-      <p>🔍 Usa los filtros y pulsa buscar</p>
+      <p> Escribe algo y pulsa buscar</p>
     </div>
 
   </div>
@@ -87,22 +71,14 @@ export default {
 
   data() {
     return {
-      query: '',           // texto escrito por el usuario
-      queryBuscada: '',    // texto de la última búsqueda realizada
-      campo: 'title',      // campo por el que se filtra
-      resultados: [],      // records devueltos por la API
-      loading: false,      // controla el spinner
-      buscado: false,      // si ya se ha hecho alguna búsqueda
-      currentPage: 1,      // página actual
-      totalResultados: 0,  // total devuelto por la API
-      limit: 24,           // resultados por página
-      // Opciones del selector de campo
-      filtros: [
-        { label: 'Título', value: 'title' },
-        { label: 'Autor', value: 'author' },
-        { label: 'Fecha', value: 'date' },
-        { label: 'Colección', value: 'collection' }
-      ]
+      query: '',          // texto escrito por el usuario
+      queryBuscada: '',   // texto de la última búsqueda realizada
+      resultados: [],     // records devueltos por la API
+      loading: false,     // controla el spinner
+      buscado: false,     // si ya se ha hecho alguna búsqueda
+      currentPage: 1,     // página actual
+      totalResultados: 0, // total devuelto por la API
+      limit: 24           // resultados por página
     }
   },
 
@@ -129,7 +105,6 @@ export default {
         const offset = (this.currentPage - 1) * this.limit
         const response = await searchRecords({
           query: this.queryBuscada,
-          field: this.campo,
           offset,
           limit: this.limit
         })
@@ -183,10 +158,11 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  align-items: center;
 }
 
 .search-input-wrap {
-  position: relative;
+  width: 100%;
 }
 
 .search-input {
@@ -208,43 +184,9 @@ export default {
   color: rgba(255,255,255,0.3);
 }
 
-/* Filtros */
-.search-filters {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.filter-btn {
-  background: transparent;
-  border: 1px solid rgba(255, 133, 177, 0.2);
-  color: rgba(255,255,255,0.6);
-  padding: 0.4rem 1rem;
-  border-radius: 50px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: none;
-}
-.filter-btn:hover {
-  border-color: var(--soft-pink);
-  color: var(--soft-pink);
-  background: transparent;
-  transform: none;
-  box-shadow: none;
-}
-.filter-btn.active {
-  background: linear-gradient(135deg, #ff4d8d, #ff85b1);
-  border-color: transparent;
-  color: #fff;
-  transform: none;
-  box-shadow: none;
-}
-
 /* Botón buscar */
 .btn-buscar {
-  padding: 0.9rem 2rem;
+  padding: 0.9rem 2.5rem;
   background: linear-gradient(135deg, #ff4d8d, #ff85b1);
   border: none;
   border-radius: 50px;
@@ -253,7 +195,6 @@ export default {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  align-self: center;
 }
 .btn-buscar:hover {
   transform: translateY(-2px);
@@ -267,9 +208,7 @@ export default {
   margin-bottom: 1.5rem;
   text-align: center;
 }
-.results-count strong {
-  color: var(--soft-pink);
-}
+.results-count strong { color: var(--soft-pink); }
 
 .results-grid {
   display: grid;
@@ -300,9 +239,7 @@ export default {
   color: rgba(255,255,255,0.4);
   font-size: 1.1rem;
 }
-.empty strong {
-  color: var(--soft-pink);
-}
+.empty strong { color: var(--soft-pink); }
 
 @media (max-width: 768px) {
   .page-header h1 { font-size: 2rem; }
