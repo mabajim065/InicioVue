@@ -1,24 +1,25 @@
 <template>
   <div class="collection-list">
 
-  
+    <!-- título de la página -->
     <div class="page-header">
       <h1>Colecciones</h1>
       <p>Explora las colecciones disponibles</p>
     </div>
 
-
+    <!-- cargando -->
     <div v-if="loading" class="loading">
       <div class="spinner"></div>
       <p>Cargando colecciones...</p>
     </div>
 
+    <!-- algo fue mal -->
     <div v-else-if="error" class="error">
       <p>{{ error }}</p>
       <button @click="fetchCollections">Reintentar</button>
     </div>
 
-
+    <!-- las tarjetas y la paginación -->
     <template v-else>
       <div class="collections-grid">
         <router-link
@@ -27,12 +28,13 @@
           :to="`/collections/${col.id}`"
           class="collection-card"
         >
-  
+          <!-- foto de la colección -->
           <div class="col-image">
             <img v-if="getColThumbnail(col)" :src="getColThumbnail(col)" :alt="getColTitle(col)" loading="lazy" @error="handleImageError" />
             <div v-else class="no-image"></div>
           </div>
 
+          <!-- nombre y descripción -->
           <div class="col-body">
             <h3>{{ getColTitle(col) }}</h3>
             <p v-if="getColDescription(col)" class="col-desc">{{ getColDescription(col) }}</p>
@@ -40,6 +42,7 @@
         </router-link>
       </div>
 
+      <!-- paginación -->
       <Pagination :current-page="currentPage" :total-pages="totalPages" @page-change="goToPage" />
     </template>
 
@@ -55,35 +58,33 @@ export default {
 
   data() {
     return {
-      collections: [],     
-      loading: true,        
-      error: null,       
-      currentPage: 1,       
-      totalCollections: 0,  
-      limit: 24           
+      collections: [],
+      loading: true,
+      error: null,
+      currentPage: 1,
+      totalCollections: 0,
+      limit: 24
     }
   },
 
   computed: {
-    // Calcula el total de páginas
+    // cuántas páginas hay en total
     totalPages() {
       return Math.ceil(this.totalCollections / this.limit) || 1
     }
   },
 
-  // Carga las colecciones al montar el componente
   created() {
     this.fetchCollections()
   },
 
   methods: {
-    // Pide las colecciones a la API según la página actual
+    // pide las colecciones a la API
     async fetchCollections() {
       this.loading = true
       this.error = null
       try {
         const offset = (this.currentPage - 1) * this.limit
-        //Llamar a la apin 
         const response = await getCollections(offset, this.limit)
         const data = response.data
         const dataRaw = data?.items || data?.data?.items || data?.data || []
@@ -97,14 +98,14 @@ export default {
       }
     },
 
-    // Cambia de página y vuelve al inicio
+    // cambia de página
     goToPage(page) {
       this.currentPage = page
       this.fetchCollections()
       window.scrollTo({ top: 0, behavior: 'smooth' })
     },
 
-    // Construye la URL completa de la imagen 
+    // monta la URL de la foto
     getColThumbnail(col) {
       let thumb = col.thumbnail
       if (!thumb) return null
@@ -118,7 +119,7 @@ export default {
       return `https://arcadium.cluster24.libnamic.eu${path}`
     },
 
-    // Extrae el título 
+    // saca el título
     getColTitle(col) {
       if (!col.title) return 'Sin título'
       if (typeof col.title === 'string') return col.title
@@ -126,7 +127,7 @@ export default {
       return keys.length > 0 ? col.title[keys[0]] : 'Sin título'
     },
 
-    // Extrae la descripción
+    // saca la descripción
     getColDescription(col) {
       if (!col.description) return null
       if (typeof col.description === 'string') return col.description
@@ -134,7 +135,7 @@ export default {
       return keys.length > 0 ? col.description[keys[0]] : null
     },
 
-    // Oculta la imagen si no carga
+    // oculta la foto si no carga
     handleImageError(e) {
       e.target.style.display = 'none'
     }
@@ -159,4 +160,7 @@ export default {
 .spinner { width: 40px; height: 40px; border: 3px solid rgba(255, 255, 255, 0.1); border-top-color: #ff4d8d; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .error { text-align: center; padding: 3rem; color: #ff6b6b; }
+@media (max-width: 768px) {
+  .collections-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+}
 </style>
