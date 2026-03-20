@@ -49,8 +49,8 @@ export function getCollectionDetail(id) {
   })
 }
 
-// Busca records EL PARAMETRO CORRECTO DE LA API ES SEARCH POR ESO NO ME FUNCIONABA ANTES
-export function searchRecords({ query = '', offset = 0, limit = 24 } = {}) {
+// Busca records por texto y/o colección
+export function searchRecords({ query = '', collectionId = '', offset = 0, limit = 24 } = {}) {
   const params = {
     with_labels: 1,
     search_all_languages: 1,
@@ -59,8 +59,11 @@ export function searchRecords({ query = '', offset = 0, limit = 24 } = {}) {
     offset
   }
 
-  // CON ESTO AÑADO LOS TERMIINOS DE BUSQUEDA QUE EXISTEN
+  // Añade búsqueda por texto si existe
   if (query) params['search'] = query
+
+  // Filtra por colección si se ha seleccionado una
+  if (collectionId) params['collection_id'] = collectionId
 
   return api.get('/record', { params })
 }

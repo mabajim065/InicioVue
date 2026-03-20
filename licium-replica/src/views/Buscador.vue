@@ -4,23 +4,36 @@
     <!-- Cabecera -->
     <div class="page-header">
       <h1>Buscador</h1>
-      <p>Encuentra registros por título, autor o cualquier campo</p>
+      <p>Busca registros por texto o filtra por colección</p>
     </div>
 
-    <!-- Formulario de búsqueda -->
+    <!-- Formulario -->
     <div class="search-form">
-      <div class="search-input-wrap">
-        <input
-          v-model="query"
-          type="text"
-          class="search-input"
-          placeholder="Escribe lo que buscas..."
-          @keyup.enter="buscar"
-        />
-      </div>
-      <button class="btn-buscar" @click="buscar">
-        Buscar →
-      </button>
+
+      <!-- Caja de texto -->
+      <input
+        v-model="query"
+        type="text"
+        class="search-input"
+        placeholder="Escribe lo que buscas..."
+        @keyup.enter="buscar"
+      />
+
+      <!-- Desplegable de colecciones -->
+      <select v-model="coleccionSeleccionada" class="search-select">
+        <option value="">Todas las colecciones</option>
+        <option
+          v-for="col in colecciones"
+          :key="col.id"
+          :value="col.id"
+        >
+          {{ getColTitle(col) }}
+        </option>
+      </select>
+
+      <!-- Botón buscar -->
+      <button class="btn-buscar" @click="buscar">Buscar →</button>
+
     </div>
 
     <!-- Estado de carga -->
@@ -31,13 +44,13 @@
 
     <!-- Sin resultados -->
     <div v-else-if="buscado && resultados.length === 0" class="empty">
-      <p>No se encontraron resultados para "<strong>{{ queryBuscada }}</strong>"</p>
+      <p>No se encontraron resultados</p>
     </div>
 
     <!-- Resultados -->
     <template v-else-if="resultados.length > 0">
       <p class="results-count">
-        {{ totalResultados }} resultado{{ totalResultados !== 1 ? 's' : '' }} para "<strong>{{ queryBuscada }}</strong>"
+        {{ totalResultados }} resultado{{ totalResultados !== 1 ? 's' : '' }}
       </p>
       <div class="results-grid">
         <RecordCard
@@ -55,14 +68,14 @@
 
     <!-- Estado inicial -->
     <div v-else class="initial">
-      <p> Escribe algo y pulsa buscar</p>
+      <p>🔍 Escribe algo o elige una colección y pulsa buscar</p>
     </div>
 
   </div>
 </template>
 
 <script>
-import { searchRecords } from '../api/licium.js'
+import { searchRecords, getCollections } from '../api/licium.js'
 import RecordCard from '../components/RecordCard.vue'
 import Pagination from '../components/Pagination.vue'
 
@@ -71,14 +84,15 @@ export default {
 
   data() {
     return {
-      query: '',          // texto escrito por el usuario
-      queryBuscada: '',   // texto de la última búsqueda realizada
-      resultados: [],     // records devueltos por la API
-      loading: false,     // controla el spinner
-      buscado: false,     // si ya se ha hecho alguna búsqueda
-      currentPage: 1,     // página actual
-      totalResultados: 0, // total devuelto por la API
-      limit: 24           // resultados por página
+      query: '',               // texto del buscador
+      coleccionSeleccionada: '', // id de la colección elegida
+      colecciones: [],         // lista para el desplegable
+      resultados: [],          // records encontrados
+      loading: false,
+      buscado: false,
+      currentPage: 1,
+      totalResultados: 0,
+      limit: 24
     }
   },
 
@@ -88,12 +102,27 @@ export default {
     }
   },
 
+  // Carga las colecciones al entrar en la página
+  created() {
+    this.cargarColecciones()
+  },
+
   methods: {
-    // Lanza la búsqueda desde el principio
+    // Carga las colecciones para el desplegable
+    async cargarColecciones() {
+      try {
+        const response = await getCollections(0, 100)
+        const data = response.data
+        const dataRaw = data?.items || data?.data?.items || data?.data || []
+        this.colecciones = Array.isArray(dataRaw) ? dataRaw.filter(c => c !== null) : []
+      } catch (err) {
+        console.error('Error cargando colecciones:', err)
+      }
+    },
+
+    // Lanza la búsqueda
     buscar() {
-      if (!this.query.trim()) return
       this.currentPage = 1
-      this.queryBuscada = this.query
       this.fetchResultados()
     },
 
@@ -103,11 +132,16 @@ export default {
       this.buscado = true
       try {
         const offset = (this.currentPage - 1) * this.limit
-        const response = await searchRecords({
-          query: this.queryBuscada,
+        const params = {
+          query: this.query,
           offset,
           limit: this.limit
-        })
+        }
+        // Si hay colección seleccionada la añadimos
+        if (this.coleccionSeleccionada) {
+          params.collectionId = this.coleccionSeleccionada
+        }
+        const response = await searchRecords(params)
         const data = response.data
         const dataRaw = data?.items || data?.data?.items || data?.data || []
         this.resultados = Array.isArray(dataRaw) ? dataRaw.filter(r => r !== null) : []
@@ -120,11 +154,18 @@ export default {
       }
     },
 
-    // Cambia de página
     goToPage(page) {
       this.currentPage = page
       this.fetchResultados()
       window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+
+    // Extrae el título de la colección
+    getColTitle(col) {
+      if (!col.title) return 'Sin título'
+      if (typeof col.title === 'string') return col.title
+      const keys = Object.keys(col.title)
+      return keys.length > 0 ? col.title[keys[0]] : 'Sin título'
     }
   }
 }
@@ -161,10 +202,6 @@ export default {
   align-items: center;
 }
 
-.search-input-wrap {
-  width: 100%;
-}
-
 .search-input {
   width: 100%;
   padding: 1rem 1.5rem;
@@ -184,7 +221,33 @@ export default {
   color: rgba(255,255,255,0.3);
 }
 
-/* Botón buscar */
+/* Desplegable */
+.search-select {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: #1a1a2e;
+  border: 1px solid rgba(255, 133, 177, 0.2);
+  border-radius: 50px;
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ff85b1' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1.5rem center;
+}
+.search-select:focus {
+  border-color: var(--primary-pink);
+}
+.search-select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+/* Botón */
 .btn-buscar {
   padding: 0.9rem 2.5rem;
   background: linear-gradient(135deg, #ff4d8d, #ff85b1);
@@ -208,7 +271,6 @@ export default {
   margin-bottom: 1.5rem;
   text-align: center;
 }
-.results-count strong { color: var(--soft-pink); }
 
 .results-grid {
   display: grid;
@@ -217,7 +279,6 @@ export default {
   margin-bottom: 3rem;
 }
 
-/* Estados */
 .loading {
   text-align: center;
   padding: 4rem 0;
@@ -239,7 +300,6 @@ export default {
   color: rgba(255,255,255,0.4);
   font-size: 1.1rem;
 }
-.empty strong { color: var(--soft-pink); }
 
 @media (max-width: 768px) {
   .page-header h1 { font-size: 2rem; }
