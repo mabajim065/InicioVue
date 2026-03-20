@@ -49,7 +49,7 @@ export function getCollectionDetail(id) {
   })
 }
 
-// Busca records por texto y/o colección
+// Busca records por texto colección
 export function searchRecords({ query = '', collectionId = '', offset = 0, limit = 24 } = {}) {
   const params = {
     with_labels: 1,
@@ -59,10 +59,9 @@ export function searchRecords({ query = '', collectionId = '', offset = 0, limit
     offset
   }
 
-  // Añade búsqueda por texto si existe
   if (query) params['search'] = query
 
-  // Filtra por colección si se ha seleccionado una
+
   if (collectionId) params['collection_id'] = collectionId
 
   return api.get('/record', { params })

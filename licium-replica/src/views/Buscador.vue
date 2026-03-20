@@ -68,7 +68,7 @@
 
     <!-- Estado inicial -->
     <div v-else class="initial">
-      <p>🔍 Escribe algo o elige una colección y pulsa buscar</p>
+      <p>Escribe algo o elige una colección y pulsa buscar</p>
     </div>
 
   </div>
@@ -84,10 +84,10 @@ export default {
 
   data() {
     return {
-      query: '',               // texto del buscador
-      coleccionSeleccionada: '', // id de la colección elegida
-      colecciones: [],         // lista para el desplegable
-      resultados: [],          // records encontrados
+      query: '',              
+      coleccionSeleccionada: '', 
+      colecciones: [],         
+      resultados: [],        
       loading: false,
       buscado: false,
       currentPage: 1,
