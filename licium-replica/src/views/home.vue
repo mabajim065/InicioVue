@@ -1,14 +1,11 @@
 <template>
   <div class="home">
     <div class="hero">
-      <!-- Fondo decorativo con blobs animados -->
       <div class="hero-bg">
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
         <div class="blob blob-3"></div>
       </div>
-
-      <!-- Contenido central -->
       <div class="hero-content">
         <p class="eyebrow">Replica Licium con Vue</p>
         <h1 class="hero-title">
@@ -20,20 +17,15 @@
           y la API real de Arcadium. Explora registros históricos,
           fotografías y colecciones culturales.
         </p>
-
-        <!-- Botones de navegación -->
         <div class="hero-buttons">
           <router-link to="/record" class="btn btn-primary">
-            Ver Records
-            <span class="btn-arrow">→</span>
+            Ver Records <span class="btn-arrow">→</span>
           </router-link>
           <router-link to="/collections" class="btn btn-secondary">
             Ver Colecciones
           </router-link>
         </div>
       </div>
-
-      <!-- Badges informativos -->
       <div class="hero-badge">
         <div class="badge-inner">
           <span class="badge-num">24+</span>
@@ -45,7 +37,6 @@
         </div>
       </div>
     </div>
-
 
     <section class="about">
       <div class="about-card">
@@ -70,22 +61,15 @@
 </template>
 
 <script>
-export default {
-  name: 'Home'
-}
+export default { name: 'Home' }
 </script>
 
 <style scoped>
-.home {
-  min-height: 80vh;
-  /* Evita scroll horizontal por los blobs */
-  overflow-x: hidden;
-}
+.home { min-height: 80vh; overflow-x: hidden; }
 
 .hero {
   position: relative;
   padding: 5rem 2rem 4rem;
-  /* Corta cualquier cosa que se salga del hero */
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -94,74 +78,40 @@ export default {
   gap: 3rem;
 }
 
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
+.hero-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
 
-  overflow: hidden;
-}
+.blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12; }
+.blob-1 { width: 500px; height: 500px; background: #ff4d8d; top: -150px; left: -100px; animation: drift 8s ease-in-out infinite alternate; }
+.blob-2 { width: 350px; height: 350px; background: #ffadd0; top: 50px; right: -80px; animation: drift 10s ease-in-out infinite alternate-reverse; }
+.blob-3 { width: 250px; height: 250px; background: #ff85b1; bottom: -50px; left: 40%; animation: drift 7s ease-in-out infinite alternate; }
 
-.blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.12;
-}
-.blob-1 {
-  width: 500px; height: 500px;
-  background: #ff4d8d;
-  top: -150px; left: -100px;
-  animation: drift 8s ease-in-out infinite alternate;
-}
-.blob-2 {
-  width: 350px; height: 350px;
-  background: #ffadd0;
-  top: 50px; right: -80px;
-  animation: drift 10s ease-in-out infinite alternate-reverse;
-}
-.blob-3 {
-  width: 250px; height: 250px;
-  background: #ff85b1;
-  bottom: -50px; left: 40%;
-  animation: drift 7s ease-in-out infinite alternate;
-}
 @keyframes drift {
   from { transform: translate(0, 0) scale(1); }
   to   { transform: translate(30px, 20px) scale(1.08); }
 }
 
-.hero-content {
-  position: relative;
-  z-index: 1;
-  max-width: 640px;
-  width: 100%;
-}
+.hero-content { position: relative; z-index: 1; max-width: 640px; width: 100%; }
 
 .eyebrow {
   font-size: 0.78rem;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: #ff85b1;
+  color: var(--soft-pink);
   margin-bottom: 1.2rem;
   opacity: 0.8;
 }
 
-.hero-title {
-  display: flex;
-  flex-direction: column;
-  line-height: 1;
-  margin-bottom: 1.5rem;
-}
+.hero-title { display: flex; flex-direction: column; line-height: 1; margin-bottom: 1.5rem; }
 
+/* "Licium" usa variable: blanco en oscuro, color oscuro en claro */
 .line-1 {
   font-size: clamp(2.5rem, 10vw, 6.5rem);
   font-weight: 800;
-  color: #fff;
+  color: var(--hero-title-color);
   letter-spacing: -3px;
 }
 
+/* "Replica" siempre en gradiente rosa, contrasta en ambos fondos */
 .line-2 {
   font-size: clamp(2.5rem, 10vw, 6.5rem);
   font-weight: 800;
@@ -172,7 +122,7 @@ export default {
 }
 
 .hero-desc {
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--hero-desc-color);
   font-size: 1.05rem;
   line-height: 1.8;
   margin-bottom: 2.5rem;
@@ -181,12 +131,7 @@ export default {
   margin-right: auto;
 }
 
-.hero-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
+.hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 
 .btn {
   display: inline-flex;
@@ -205,57 +150,32 @@ export default {
   color: #fff;
   box-shadow: 0 4px 20px rgba(255, 77, 141, 0.35);
 }
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(255, 77, 141, 0.5);
-}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255, 77, 141, 0.5); color: #fff; }
 .btn-arrow { transition: transform 0.3s; }
 .btn-primary:hover .btn-arrow { transform: translateX(4px); }
 
 .btn-secondary {
   background: transparent;
-  color: #ff85b1;
-  border: 1px solid rgba(255, 133, 177, 0.35);
+  color: var(--primary-pink);
+  border: 1px solid rgba(255, 77, 141, 0.4);
 }
-.btn-secondary:hover {
-  background: rgba(255, 77, 141, 0.08);
-  border-color: rgba(255, 133, 177, 0.6);
-  transform: translateY(-2px);
-}
+.btn-secondary:hover { background: var(--glass-pink); border-color: rgba(255,77,141,0.7); transform: translateY(-2px); color: var(--primary-pink); }
 
-.hero-badge {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+.hero-badge { position: relative; z-index: 1; display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
 
 .badge-inner {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 133, 177, 0.15);
+  background: var(--badge-bg);
+  border: 1px solid var(--badge-border);
   border-radius: 16px;
   padding: 1rem 1.8rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 
-.badge-num {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #ff85b1;
-  line-height: 1;
-}
-
-.badge-label {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: 0.3rem;
-}
+.badge-num { font-size: 1.8rem; font-weight: 800; color: var(--primary-pink); line-height: 1; }
+.badge-label { font-size: 0.72rem; color: var(--badge-label-color); text-transform: uppercase; letter-spacing: 1px; margin-top: 0.3rem; }
 
 .about {
   display: grid;
@@ -268,34 +188,20 @@ export default {
 }
 
 .about-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 133, 177, 0.1);
+  background: var(--section-card-bg);
+  border: 1px solid var(--section-card-border);
   border-radius: 16px;
-  padding: 1.8rem;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.04);
 }
 
-.about-tag {
-  display: inline-block;
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  color: #ff85b1;
-  margin-bottom: 0.8rem;
-  opacity: 0.7;
-}
+.about-card p { color: var(--text-body); line-height: 1.9; margin: 0; }
+.about-tag { display: inline-block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 2px; color: var(--soft-pink); margin-bottom: 0.8rem; opacity: 0.8; }
+.about-card strong { color: var(--text-main); font-weight: 600; }
 
-.about-card p {
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 0.95rem;
-  line-height: 1.8;
-}
-
-.about-card strong {
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 600;
-}
-
-/* Responsive movil */
 @media (max-width: 600px) {
   .hero { padding: 3rem 1rem 2rem; gap: 2rem; }
   .about { grid-template-columns: 1fr; padding: 0 0 3rem; }

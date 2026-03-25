@@ -1,23 +1,28 @@
 <template>
-  <!-- Enlace a la vista de detalle del record -->
   <router-link :to="`/record/${record.id}`" class="record-card">
-
     
     <div class="card-image">
       <img
-        v-if="imageUrl"
+        v-if="imageUrl && !imageFailed"
         :src="imageUrl"
         :alt="getTitle"
         @error="handleImageError"
       />
-      <div v-else class="no-image"></div>
+      <div v-else class="no-image">
+        <svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="48" height="48">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span class="text">Sin imagen</span>
+      </div>
     </div>
-
     
     <div class="card-info">
-      <h3>{{ getTitle }}</h3>
-      <p v-if="getAuthor">{{ getAuthor }}</p>
-      <p v-if="getDate">{{ getDate }}</p>
+      <h3 class="record-title">{{ getTitle }}</h3>
+      
+      <div class="record-meta">
+        <p v-if="getAuthor" class="author">{{ getAuthor }}</p>
+        <p v-if="getDate" class="date">{{ getDate }}</p>
+      </div>
     </div>
 
   </router-link>
@@ -25,11 +30,17 @@
 
 <script>
 export default {
-  // Recibe el objeto record desde el componente padre
   props: {
     record: {
       type: Object,
       required: true
+    }
+  },
+
+  data() {
+    return {
+      // Bandera para saber si la imagen falló al cargar
+      imageFailed: false 
     }
   },
 
@@ -38,7 +49,6 @@ export default {
       let thumb = this.record.thumbnail
       if (!thumb) return null
 
- 
       if (typeof thumb === 'object') {
         const keys = Object.keys(thumb)
         thumb = keys.length > 0 ? thumb[keys[0]] : null
@@ -47,12 +57,10 @@ export default {
       if (!thumb) return null
       if (thumb.startsWith('http')) return thumb
 
-      // Añade el dominio base si la ruta es relativa
       const path = thumb.startsWith('/') ? thumb : `/${thumb}`
       return `https://arcadium.cluster24.libnamic.eu${path}`
     },
 
-    // Extrae el título
     getTitle() {
       if (!this.record.title) return 'Sin título'
       if (typeof this.record.title === 'string') return this.record.title
@@ -60,7 +68,6 @@ export default {
       return keys.length > 0 ? this.record.title[keys[0]] : 'Sin título'
     },
 
-    // Extrae el autor
     getAuthor() {
       if (!this.record.author) return null
       if (typeof this.record.author === 'string') return this.record.author
@@ -69,7 +76,6 @@ export default {
       return keys.length > 0 ? this.record.author[keys[0]] : null
     },
 
-    // Extrae la fecha
     getDate() {
       if (!this.record.date) return null
       if (typeof this.record.date === 'string') return this.record.date
@@ -79,10 +85,124 @@ export default {
   },
 
   methods: {
-    // Oculta la imagen si no carga correctamente
-    handleImageError(e) {
-      e.target.style.display = 'none'
+    handleImageError() {
+      this.imageFailed = true
     }
   }
 }
 </script>
+
+<style scoped>
+/* 1. Estilos generales de la tarjeta (Flexbox para la altura) */
+.record-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.record-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(255, 77, 141, 0.15);
+  border-color: rgba(255, 77, 141, 0.3);
+}
+
+/* 2. El recorte perfecto de las imágenes */
+.card-image {
+  width: 100%;
+  aspect-ratio: 1 / 1; 
+  background-color: var(--image-placeholder-bg);
+  overflow: hidden;
+  position: relative;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;  
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.record-card:hover .card-image img {
+  transform: scale(1.05); 
+}
+
+/* 3. Estilos del icono SVG si no hay imagen */
+.no-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  color: var(--text-muted);
+}
+
+.no-image .icon-svg {
+  stroke: var(--soft-pink);
+  opacity: 0.4;
+  transition: stroke 0.3s ease, opacity 0.3s ease;
+}
+
+.no-image .text {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.record-card:hover .no-image .icon-svg {
+  stroke: var(--primary-pink);
+  opacity: 0.8;
+}
+.record-card:hover .no-image .text {
+  color: var(--primary-pink);
+}
+
+/* 4. Alineación interna de los textos */
+.card-info {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; 
+}
+
+.record-title {
+  font-size: 1.1rem;
+  color: var(--text-main);
+  margin-top: 0;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.record-meta {
+  margin-top: auto; 
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.author {
+  color: var(--soft-pink, #ff85b1);
+  font-size: 0.85rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+.date {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin: 0;
+}
+</style>

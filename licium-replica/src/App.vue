@@ -12,15 +12,129 @@ import Navbar from './components/Navbar.vue'
 </template>
 
 <style>
+/* 1. VARIABLES GLOBALES DE COLOR (Modo Oscuro por defecto) */
 :root {
+  /* Colores de marca (se mantienen igual en ambos modos) */
   --primary-pink: #ff4d8d;
   --soft-pink: #ff85b1;
   --hover-pink: #ffadd0;
-  --bg-dark: #0f0f1b;
+  
+  /* Colores de estructura (Modo Oscuro) */
+  --bg-color: #0f0f1b;
   --card-bg: #1a1a2e;
+  --text-main: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --border-color: rgba(255, 255, 255, 0.05);
   --glass-pink: rgba(255, 77, 141, 0.15);
+  --image-placeholder-bg: #12121f;
+  --disabled-bg: #2a2a3d;
+  --disabled-color: rgba(255, 255, 255, 0.5);
+
+  /* Inputs y formularios */
+  --input-bg: #1a1a2e;
+  --input-color: #ffffff;
+  --input-placeholder: rgba(255, 255, 255, 0.3);
+  --select-option-bg: #1a1a2e;
+
+  /* Paginación */
+  --page-btn-bg: #1a1a2e;
+  --page-btn-color: #ffffff;
+
+  /* Spinner */
+  --spinner-track: rgba(255, 255, 255, 0.1);
+
+  /* Texto en secciones */
+  --text-body: rgba(255, 255, 255, 0.7);
+  --text-subtle: rgba(255, 255, 255, 0.5);
+  --text-faint: rgba(255, 255, 255, 0.4);
+
+  /* Metadatos */
+  --meta-key-color: rgba(255, 133, 177, 0.7);
+  --meta-value-color: rgba(255, 255, 255, 0.8);
+  --meta-row-border: rgba(255, 77, 141, 0.08);
+
+  /* Tarjetas about/sección */
+  --section-card-bg: rgba(255, 255, 255, 0.03);
+  --section-card-border: rgba(255, 133, 177, 0.1);
+
+  /* Badge hero */
+  --badge-bg: rgba(255, 255, 255, 0.04);
+  --badge-border: rgba(255, 133, 177, 0.15);
+
+  /* Estado vacío / loading */
+  --empty-color: rgba(255, 133, 177, 0.4);
+  --loading-text: rgba(255, 255, 255, 0.6);
+
+  /* No-image en detail */
+  --no-image-detail-bg: #1a1a2e;
+
+  /* Hero: texto blanco sobre fondo oscuro */
+  --hero-title-color: #ffffff;
+  --hero-desc-color: rgba(255, 255, 255, 0.55);
+  --badge-label-color: rgba(255, 255, 255, 0.4);
+
+  /* Heading gradient oscuro: blanco → rosa */
+  --heading-gradient: linear-gradient(to right, #ffffff, var(--soft-pink));
 }
 
+/* 2. VARIABLES MODO CLARO (Sobrescriben las anteriores cuando se activa) */
+[data-theme="light"] {
+  --bg-color: #f4f4f9;
+  --card-bg: #ffffff;
+  --text-main: #1a1a2e;
+  --text-muted: rgba(26, 26, 46, 0.65);
+  --border-color: rgba(0, 0, 0, 0.08);
+  --glass-pink: rgba(255, 77, 141, 0.08);
+  --image-placeholder-bg: #e8e8f0;
+  --disabled-bg: #d0d0dd;
+  --disabled-color: rgba(26, 26, 46, 0.4);
+
+  /* Inputs y formularios */
+  --input-bg: #ffffff;
+  --input-color: #1a1a2e;
+  --input-placeholder: rgba(26, 26, 46, 0.35);
+  --select-option-bg: #ffffff;
+
+  /* Paginación */
+  --page-btn-bg: #ffffff;
+  --page-btn-color: #1a1a2e;
+
+  /* Spinner */
+  --spinner-track: rgba(0, 0, 0, 0.08);
+
+  /* Texto en secciones */
+  --text-body: rgba(26, 26, 46, 0.75);
+  --text-subtle: rgba(26, 26, 46, 0.55);
+  --text-faint: rgba(26, 26, 46, 0.45);
+
+  /* Metadatos */
+  --meta-key-color: var(--primary-pink);
+  --meta-value-color: rgba(26, 26, 46, 0.8);
+  --meta-row-border: rgba(255, 77, 141, 0.1);
+
+  /* Tarjetas about/sección */
+  --section-card-bg: #ffffff;
+  --section-card-border: rgba(255, 77, 141, 0.15);
+
+  /* Badge hero */
+  --badge-bg: rgba(255, 255, 255, 0.7);
+  --badge-border: rgba(255, 77, 141, 0.2);
+
+  /* Estado vacío / loading */
+  --empty-color: rgba(255, 77, 141, 0.5);
+  --loading-text: rgba(26, 26, 46, 0.5);
+
+  /* No-image en detail */
+  --no-image-detail-bg: #e8e8f0;
+
+  /* Hero: texto oscuro sobre fondo claro */
+  --hero-title-color: #1a1a2e;
+  --hero-desc-color: rgba(26, 26, 46, 0.65);
+  --badge-label-color: rgba(26, 26, 46, 0.5);
+
+  /* Heading gradient claro: oscuro → rosa */
+  --heading-gradient: linear-gradient(to right, #1a1a2e, var(--primary-pink));
+}
 
 #app {
   max-width: none;
@@ -37,11 +151,14 @@ import Navbar from './components/Navbar.vue'
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--bg-dark);
-  color: #fff;
+  /* Aplicamos las variables en lugar de colores fijos */
+  background-color: var(--bg-color);
+  color: var(--text-main);
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
   width: 100%;
+  /* Transición suave al cambiar de tema */
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 .app-container {
@@ -61,19 +178,38 @@ body {
   box-sizing: border-box;
 }
 
+/* Scrollbar personalizado */
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-track { background: var(--bg-color); }
 ::-webkit-scrollbar-thumb { background: var(--primary-pink); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--soft-pink); }
 
-h1, h2, h3, h4 { color: #fff; margin-top: 0; }
+h1, h2, h3, h4 { 
+  color: var(--text-main); 
+  margin-top: 0; 
+  transition: color 0.4s ease; 
+}
 
-a { color: var(--soft-pink); text-decoration: none; transition: all 0.3s ease; }
-a:hover { color: var(--primary-pink); }
+a { 
+  color: var(--soft-pink); 
+  text-decoration: none; 
+  transition: all 0.3s ease; 
+}
+
+a:hover { 
+  color: var(--primary-pink); 
+}
+
+/* Accesibilidad para navegación por teclado en enlaces */
+a:focus-visible {
+  outline: 2px dashed var(--soft-pink);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
 
 button {
   background-color: var(--primary-pink);
-  color: #fff;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   padding: 0.6rem 1.2rem;
@@ -84,8 +220,27 @@ button {
   align-items: center;
   justify-content: center;
 }
-button:hover { background-color: var(--hover-pink); transform: translateY(-1px); box-shadow: 0 4px 15px rgba(255, 77, 141, 0.4); }
-button:disabled { background-color: #333; cursor: not-allowed; transform: none; box-shadow: none; }
+
+button:hover { 
+  background-color: var(--hover-pink); 
+  transform: translateY(-1px); 
+  box-shadow: 0 4px 15px rgba(255, 77, 141, 0.4); 
+}
+
+/* Contraste mejorado para el botón deshabilitado */
+button:disabled { 
+  background-color: var(--disabled-bg); 
+  color: var(--disabled-color);
+  cursor: not-allowed; 
+  transform: none; 
+  box-shadow: none; 
+}
+
+/* Accesibilidad para navegación por teclado en botones */
+button:focus-visible {
+  outline: 3px solid var(--soft-pink);
+  outline-offset: 3px;
+}
 
 .loading-container {
   display: flex;
