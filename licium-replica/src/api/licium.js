@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // conexión con la API
 const api = axios.create({
-  baseURL: 'https://arcadium.cluster24.libnamic.eu/api/glam'
+ baseURL: '/api/glam'
 })
 
 // trae los records, de 24 en 24
