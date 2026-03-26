@@ -12,7 +12,7 @@
       <button @click="$router.back()" class="back-btn">← Volver</button>
       <div class="detail-layout">
         <div class="detail-image">
-          <img v-if="imageUrl" :src="imageUrl" :alt="getTitle" />
+          <img v-if="imageUrl" :src="imageUrl" :alt="getTitle" @click="openLightbox(imageUrl)" class="main-img" />
           <div v-else class="no-image">🖼️</div>
         </div>
         <div class="detail-info">
@@ -42,16 +42,41 @@
           </div>
         </div>
       </div>
+
+      <!-- Galería de imágenes asociadas -->
+      <div v-if="associatedImages.length > 1" class="gallery-section">
+        <h3 class="gallery-title">Imágenes asociadas</h3>
+        <div class="gallery-scroll">
+          <div
+            v-for="(img, i) in associatedImages"
+            :key="i"
+            class="gallery-item"
+            :class="{ active: img === imageUrl }"
+            @click="openLightbox(img)"
+          >
+            <img :src="img" :alt="`Imagen ${i+1}`" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Lightbox -->
+      <div v-if="lightboxUrl" class="lightbox" @click.self="lightboxUrl = null">
+        <button class="lightbox-close" @click="lightboxUrl = null">✕</button>
+        <img :src="lightboxUrl" :alt="getTitle" />
+      </div>
     </template>
   </div>
 </template>
 
 <script>
 import { getRecordDetail } from '../api/licium.js'
+import axios from 'axios'
+
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://arcadium.cluster24.libnamic.eu'
 
 export default {
   data() {
-    return { record: null, loading: true, error: null, metadatosAbiertos: false }
+    return { record: null, loading: true, error: null, metadatosAbiertos: false, mediaImages: [], lightboxUrl: null }
   },
   computed: {
     imageUrl() {
@@ -61,7 +86,7 @@ export default {
       if (!thumb) return null
       if (thumb.startsWith('http')) return thumb
       const path = thumb.startsWith('/') ? thumb : `/${thumb}`
-      return `https://arcadium.cluster24.libnamic.eu${path}`
+      return `${API_BASE}${path}`
     },
     getTitle() {
       if (!this.record?.title) return 'Sin título'
@@ -81,6 +106,14 @@ export default {
         id: col.id,
         title: typeof col.title === 'string' ? col.title : col.title?.[Object.keys(col.title)[0]] || 'Colección'
       }))
+    },
+    associatedImages() {
+      const imgs = []
+      if (this.imageUrl) imgs.push(this.imageUrl)
+      for (const url of this.mediaImages) {
+        if (!imgs.includes(url)) imgs.push(url)
+      }
+      return imgs
     }
   },
   created() { this.fetchRecord() },
@@ -91,9 +124,27 @@ export default {
         const id = this.$route.params.id
         const response = await getRecordDetail(id)
         this.record = response.data.data || response.data
+        this.fetchMedia(id)
       } catch (err) { console.error('Error:', err); this.error = 'No se pudo cargar el registro.' }
       finally { this.loading = false }
     },
+    async fetchMedia(id) {
+      try {
+        const res = await axios.get(`/api/glam/record/${id}/media`, { params: { with_labels: 1 } })
+        const items = res.data?.items || res.data?.data?.items || res.data?.data || []
+        this.mediaImages = (Array.isArray(items) ? items : [])
+          .map(item => {
+            let url = item?.url || item?.thumbnail || item?.file_url || item?.path
+            if (!url) return null
+            if (url.startsWith('http')) return url
+            return API_BASE + (url.startsWith('/') ? url : '/' + url)
+          })
+          .filter(Boolean)
+      } catch (e) {
+        this.mediaImages = []
+      }
+    },
+    openLightbox(url) { this.lightboxUrl = url },
     formatKey(key) {
       if (!key) return ''
       const parts = key.split('.')
@@ -136,6 +187,24 @@ export default {
 @media (max-width: 768px) { .detail-layout { grid-template-columns: 1fr; } }
 
 .detail-image img { width: 100%; border-radius: 12px; box-shadow: 0 8px 30px rgba(255, 77, 141, 0.1); }
+.detail-image .main-img { cursor: zoom-in; transition: transform 0.2s; }
+.detail-image .main-img:hover { transform: scale(1.01); }
+
+.gallery-section { margin-top: 2.5rem; }
+.gallery-title { color: var(--soft-pink); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; }
+.gallery-scroll { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: 0.75rem; scrollbar-width: thin; scrollbar-color: rgba(255,77,141,0.4) transparent; }
+.gallery-scroll::-webkit-scrollbar { height: 6px; }
+.gallery-scroll::-webkit-scrollbar-thumb { background: rgba(255,77,141,0.4); border-radius: 10px; }
+.gallery-item { flex: 0 0 160px; height: 110px; border-radius: 10px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: all 0.25s; }
+.gallery-item:hover { border-color: rgba(255,133,177,0.5); transform: translateY(-2px); }
+.gallery-item.active { border-color: var(--primary-pink); }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+
+.lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 9999; display: flex; align-items: center; justify-content: center; cursor: zoom-out; }
+.lightbox img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.lightbox-close { position: absolute; top: 1.5rem; right: 1.5rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1.4rem; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+.lightbox-close:hover { background: rgba(255,77,141,0.5); box-shadow: none; transform: none; }
+
 .detail-image .no-image {
   width: 100%;
   aspect-ratio: 4/3;
@@ -184,7 +253,6 @@ export default {
   box-shadow: none;
 }
 .metadata-toggle:hover { background: rgba(255, 77, 141, 0.15); transform: none; box-shadow: none; }
-
 .metadata table { width: 100%; border-collapse: collapse; }
 .metadata tr { border-bottom: 1px solid var(--meta-row-border); }
 .metadata td { padding: 0.7rem 0; vertical-align: top; }

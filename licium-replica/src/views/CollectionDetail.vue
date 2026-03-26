@@ -10,9 +10,11 @@
     </div>
     <template v-else-if="collection">
       <router-link to="/collections" class="back-btn">← Volver a colecciones</router-link>
-      <div class="collection-header">
-        <h1>{{ getTitle }}</h1>
-        <p v-if="getDescription" class="col-description">{{ getDescription }}</p>
+      <div class="collection-hero" :style="imageUrl ? `background-image: url('${imageUrl}')` : ''" :class="{ 'no-image': !imageUrl }">
+        <div class="collection-hero-overlay">
+          <h1>{{ getTitle }}</h1>
+          <p v-if="getDescription" class="col-description">{{ getDescription }}</p>
+        </div>
       </div>
       <div v-if="collection.canonical_joined_metadata" class="metadata">
         <button class="metadata-toggle" @click="metadatosAbiertos = !metadatosAbiertos">
@@ -48,12 +50,23 @@ import { getCollectionDetail, getRecords } from '../api/licium.js'
 import RecordCard from '../components/RecordCard.vue'
 import Pagination from '../components/Pagination.vue'
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://arcadium.cluster24.libnamic.eu'
+
 export default {
   components: { RecordCard, Pagination },
   data() {
     return { collection: null, records: [], loading: true, loadingRecords: false, error: null, metadatosAbiertos: false, currentPage: 1, totalRecords: 0, limit: 24 }
   },
   computed: {
+    imageUrl() {
+      let thumb = this.collection?.thumbnail
+      if (!thumb) return null
+      if (typeof thumb === 'object') { const keys = Object.keys(thumb); thumb = keys.length > 0 ? thumb[keys[0]] : null }
+      if (!thumb) return null
+      if (thumb.startsWith('http')) return thumb
+      const path = thumb.startsWith('/') ? thumb : `/${thumb}`
+      return `${API_BASE}${path}`
+    },
     getTitle() {
       if (!this.collection?.title) return 'Sin título'
       if (typeof this.collection.title === 'string') return this.collection.title
@@ -119,9 +132,38 @@ export default {
 .back-btn { display: inline-block; color: var(--soft-pink); text-decoration: none; margin-bottom: 1.5rem; font-size: 0.9rem; transition: color 0.3s; }
 .back-btn:hover { color: var(--primary-pink); }
 
-.collection-header { margin-bottom: 2rem; }
-.collection-header h1 { font-size: 2rem; color: var(--text-main); margin-bottom: 0.5rem; }
-.col-description { color: var(--text-body); line-height: 1.7; max-width: 800px; }
+.collection-hero {
+  width: 100%;
+  min-height: 280px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--glass-pink);
+  border-radius: 16px;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+.collection-hero.no-image {
+  background: linear-gradient(135deg, rgba(255,77,141,0.15), rgba(255,133,177,0.05));
+  border: 1px solid rgba(255,133,177,0.2);
+  align-items: center;
+  justify-content: center;
+}
+.collection-hero-overlay {
+  width: 100%;
+  padding: 2rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);
+}
+.no-image .collection-hero-overlay {
+  background: none;
+  text-align: center;
+}
+.collection-hero h1 { font-size: 2rem; color: #fff; margin-bottom: 0.4rem; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.no-image .collection-hero h1 { color: var(--text-main); text-shadow: none; }
+.col-description { color: rgba(255,255,255,0.85); line-height: 1.6; max-width: 800px; font-size: 0.95rem; }
+.no-image .col-description { color: var(--text-body); }
 
 .metadata { margin-bottom: 2.5rem; }
 .metadata-toggle {

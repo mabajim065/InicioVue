@@ -14,8 +14,13 @@ export function getRecords(offset = 0, limit = 24, collectionId = null) {
     limit,
     offset
   }
-  // si le pasas una colección, filtra por ella
-  if (collectionId) params['collection_id'] = collectionId
+  // si le pasas una colección, filtra por ella usando el parámetro domain
+  if (collectionId) {
+    params['domain'] = JSON.stringify({
+      op: 'and',
+      children: [{ type: 'condition', field: 'collections', operator: 'in', value: [Number(collectionId)] }]
+    })
+  }
 
   return api.get('/record', { params })
 }
@@ -47,7 +52,7 @@ export function getCollectionDetail(id) {
   return api.get(`/collection/${id}`, {
     params: {
       with_labels: 1,
-      fields: 'id,title,description,canonical_joined_metadata'
+      fields: 'id,title,description,thumbnail,canonical_joined_metadata'
     }
   })
 }
@@ -63,8 +68,13 @@ export function searchRecords({ query = '', collectionId = '', offset = 0, limit
   }
   // añade el texto de búsqueda si hay
   if (query) params['search'] = query
-  // añade el filtro de colección si hay
-  if (collectionId) params['collection_id'] = collectionId
+  // añade el filtro de colección usando domain (soporta múltiples colecciones)
+  if (collectionId) {
+    params['domain'] = JSON.stringify({
+      op: 'and',
+      children: [{ type: 'condition', field: 'collections', operator: 'in', value: [Number(collectionId)] }]
+    })
+  }
 
   return api.get('/record', { params })
 }

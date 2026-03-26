@@ -1,5 +1,5 @@
 <template>
-  <div class="record-list">
+  <div class="collection-list">
     <div class="page-header">
       <h1>Colecciones</h1>
       <p>Explora el catálogo de colecciones</p>
@@ -10,11 +10,28 @@
     </div>
     <div v-else-if="error" class="error">
       <p>{{ error }}</p>
-      <button @click="fetchRecords">Reintentar</button>
+      <button @click="fetchCollections">Reintentar</button>
     </div>
     <template v-else>
-      <div class="records-grid">
-        <RecordCard v-for="record in records" :key="record.id" :record="record" />
+      <div class="collections-grid">
+        <router-link
+          v-for="col in collections"
+          :key="col.id"
+          :to="`/collections/${col.id}`"
+          class="collection-card"
+        >
+          <div
+            class="card-image"
+            :style="getThumb(col) ? `background-image: url('${getThumb(col)}')` : ''"
+            :class="{ 'no-image': !getThumb(col) }"
+          >
+            <div v-if="!getThumb(col)" class="no-image-icon">🗂️</div>
+          </div>
+          <div class="card-info">
+            <h3>{{ getTitle(col) }}</h3>
+            <p v-if="getDescription(col)" class="col-desc">{{ getDescription(col) }}</p>
+          </div>
+        </router-link>
       </div>
       <Pagination :current-page="currentPage" :total-pages="totalPages" @page-change="goToPage" />
     </template>
@@ -22,42 +39,62 @@
 </template>
 
 <script>
-import { getRecords } from '../api/licium.js'
-import RecordCard from '../components/RecordCard.vue'
+import { getCollections } from '../api/licium.js'
 import Pagination from '../components/Pagination.vue'
 
 export default {
-  components: { RecordCard, Pagination },
+  components: { Pagination },
   data() {
-    return { records: [], loading: true, error: null, currentPage: 1, totalRecords: 0, limit: 24 }
+    return { collections: [], loading: true, error: null, currentPage: 1, totalCollections: 0, limit: 24 }
   },
   computed: {
-    totalPages() { return Math.ceil(this.totalRecords / this.limit) || 1 }
+    totalPages() { return Math.ceil(this.totalCollections / this.limit) || 1 }
   },
   created() {
     const page = parseInt(this.$route.query.page) || 1
     this.currentPage = page
-    this.fetchRecords()
+    this.fetchCollections()
   },
   methods: {
-    async fetchRecords() {
+    async fetchCollections() {
       this.loading = true; this.error = null
       try {
         const offset = (this.currentPage - 1) * this.limit
-        const response = await getRecords(offset, this.limit)
+        const response = await getCollections(offset, this.limit)
         const data = response.data
         const dataRaw = data?.items || data?.data?.items || data?.data || []
-        this.records = Array.isArray(dataRaw) ? dataRaw.filter(r => r !== null) : []
-        this.totalRecords = data?.total || data?.data?.total || this.records.length
+        this.collections = Array.isArray(dataRaw) ? dataRaw.filter(c => c !== null) : []
+        this.totalCollections = data?.total || data?.data?.total || this.collections.length
       } catch (err) {
-        console.error('Error:', err); this.error = 'No se pudieron cargar los registros.'
+        console.error('Error:', err); this.error = 'No se pudieron cargar las colecciones.'
       } finally { this.loading = false }
     },
     goToPage(page) {
       this.currentPage = page
       this.$router.replace({ query: { page } })
-      this.fetchRecords()
+      this.fetchCollections()
       window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+    getThumb(col) {
+      let thumb = col?.thumbnail
+      if (!thumb) return null
+      if (typeof thumb === 'object') { const keys = Object.keys(thumb); thumb = keys.length > 0 ? thumb[keys[0]] : null }
+      if (!thumb) return null
+      if (thumb.startsWith('http')) return thumb
+      const path = thumb.startsWith('/') ? thumb : `/${thumb}`
+      return `https://arcadium.cluster24.libnamic.eu${path}`
+    },
+    getTitle(col) {
+      if (!col.title) return 'Sin título'
+      if (typeof col.title === 'string') return col.title
+      const keys = Object.keys(col.title)
+      return keys.length > 0 ? col.title[keys[0]] : 'Sin título'
+    },
+    getDescription(col) {
+      if (!col.description) return ''
+      if (typeof col.description === 'string') return col.description
+      const keys = Object.keys(col.description)
+      return keys.length > 0 ? col.description[keys[0]] : ''
     }
   }
 }
@@ -76,14 +113,79 @@ export default {
   letter-spacing: -1px;
 }
 .page-header p { color: var(--soft-pink); font-size: 1.1rem; opacity: 0.8; }
-.records-grid {
+
+.collections-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 2rem;
   margin-bottom: 3rem;
-  min-height: 200px;
   align-items: stretch;
 }
+
+.collection-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  text-decoration: none;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.collection-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(255, 77, 141, 0.15);
+  border-color: rgba(255, 77, 141, 0.3);
+}
+
+.card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--image-placeholder-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.5s ease;
+  overflow: hidden;
+}
+.collection-card:hover .card-image {
+  transform: scale(1.03);
+}
+.card-image.no-image {
+  background: linear-gradient(135deg, rgba(255,77,141,0.1), rgba(255,133,177,0.05));
+}
+.no-image-icon { font-size: 3rem; opacity: 0.35; }
+
+.card-info {
+  padding: 1.2rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.card-info h3 {
+  font-size: 1.05rem;
+  color: var(--text-main);
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.col-desc {
+  color: var(--text-body);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 0.75;
+}
+
 .error {
   text-align: center; padding: 3rem;
   background: rgba(255, 77, 141, 0.05);
@@ -96,6 +198,6 @@ export default {
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 768px) {
   .page-header h1 { font-size: 2rem; }
-  .records-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+  .collections-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
 }
 </style>

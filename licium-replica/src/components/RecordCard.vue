@@ -29,6 +29,8 @@
 </template>
 
 <script>
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://arcadium.cluster24.libnamic.eu'
+
 export default {
   props: {
     record: {
@@ -39,8 +41,7 @@ export default {
 
   data() {
     return {
-      // Bandera para saber si la imagen falló al cargar
-      imageFailed: false 
+      imageFailed: false
     }
   },
 
@@ -48,17 +49,14 @@ export default {
     imageUrl() {
       let thumb = this.record.thumbnail
       if (!thumb) return null
-
       if (typeof thumb === 'object') {
         const keys = Object.keys(thumb)
         thumb = keys.length > 0 ? thumb[keys[0]] : null
       }
-
       if (!thumb) return null
       if (thumb.startsWith('http')) return thumb
-
       const path = thumb.startsWith('/') ? thumb : `/${thumb}`
-      return `https://arcadium.cluster24.libnamic.eu${path}`
+      return `${API_BASE}${path}`
     },
 
     getTitle() {
@@ -93,7 +91,6 @@ export default {
 </script>
 
 <style scoped>
-/* 1. Estilos generales de la tarjeta (Flexbox para la altura) */
 .record-card {
   display: flex;
   flex-direction: column;
@@ -112,10 +109,9 @@ export default {
   border-color: rgba(255, 77, 141, 0.3);
 }
 
-/* 2. El recorte perfecto de las imágenes */
 .card-image {
   width: 100%;
-  aspect-ratio: 1 / 1; 
+  aspect-ratio: 1 / 1;
   background-color: var(--image-placeholder-bg);
   overflow: hidden;
   position: relative;
@@ -124,16 +120,15 @@ export default {
 .card-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;  
+  object-fit: cover;
   display: block;
   transition: transform 0.5s ease;
 }
 
 .record-card:hover .card-image img {
-  transform: scale(1.05); 
+  transform: scale(1.05);
 }
 
-/* 3. Estilos del icono SVG si no hay imagen */
 .no-image {
   width: 100%;
   height: 100%;
@@ -166,12 +161,11 @@ export default {
   color: var(--primary-pink);
 }
 
-/* 4. Alineación interna de los textos */
 .card-info {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  flex-grow: 1; 
+  flex-grow: 1;
 }
 
 .record-title {
@@ -187,7 +181,7 @@ export default {
 }
 
 .record-meta {
-  margin-top: auto; 
+  margin-top: auto;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
