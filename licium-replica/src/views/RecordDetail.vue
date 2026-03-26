@@ -13,7 +13,7 @@
       <div class="detail-layout">
         <div class="detail-image">
           <img v-if="imageUrl" :src="imageUrl" :alt="getTitle" @click="openLightbox(imageUrl)" class="main-img" />
-          <div v-else class="no-image">🖼️</div>
+          <div v-else class="no-image"></div>
         </div>
         <div class="detail-info">
           <h1>{{ getTitle }}</h1>
