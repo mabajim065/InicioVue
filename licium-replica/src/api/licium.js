@@ -1,8 +1,10 @@
 import axios from 'axios'
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://arcadium.cluster24.libnamic.eu'
+
 // conexión con la API
 const api = axios.create({
- baseURL: '/api/glam'
+  baseURL: '/api/glam'
 })
 
 // trae los records, de 24 en 24
@@ -14,14 +16,12 @@ export function getRecords(offset = 0, limit = 24, collectionId = null) {
     limit,
     offset
   }
-  // si le pasas una colección, filtra por ella usando el parámetro domain
   if (collectionId) {
     params['domain'] = JSON.stringify({
       op: 'and',
       children: [{ type: 'condition', field: 'collections', operator: 'in', value: [Number(collectionId)] }]
     })
   }
-
   return api.get('/record', { params })
 }
 
@@ -30,7 +30,7 @@ export function getRecordDetail(id) {
   return api.get(`/record/${id}`, {
     params: {
       with_labels: 1,
-      fields: 'id,title,description,canonical_joined_metadata,thumbnail,collections.id,collections.title'
+      fields: 'id,title,description,joined_metadata,thumbnail,collections.id,collections.title'
     }
   })
 }
@@ -52,12 +52,12 @@ export function getCollectionDetail(id) {
   return api.get(`/collection/${id}`, {
     params: {
       with_labels: 1,
-      fields: 'id,title,description,thumbnail,canonical_joined_metadata'
+      fields: 'id,title,description,thumbnail,joined_metadata'
     }
   })
 }
 
-// busca records por texto o por colección
+// busca records — texto y colección van SIEMPRE dentro del domain, nunca como &search=
 export function searchRecords({ query = '', collectionId = '', offset = 0, limit = 24 } = {}) {
   const params = {
     with_labels: 1,
@@ -66,14 +66,13 @@ export function searchRecords({ query = '', collectionId = '', offset = 0, limit
     limit,
     offset
   }
-  // añade el texto de búsqueda si hay
-  if (query) params['search'] = query
-  // añade el filtro de colección usando domain (soporta múltiples colecciones)
-  if (collectionId) {
-    params['domain'] = JSON.stringify({
-      op: 'and',
-      children: [{ type: 'condition', field: 'collections', operator: 'in', value: [Number(collectionId)] }]
-    })
+
+  const children = []
+  if (query) children.push({ type: 'text', mode: 'fulltext', value: query })
+  if (collectionId) children.push({ type: 'condition', field: 'collections', operator: 'in', value: [Number(collectionId)] })
+
+  if (children.length > 0) {
+    params['domain'] = JSON.stringify({ op: 'and', children })
   }
 
   return api.get('/record', { params })

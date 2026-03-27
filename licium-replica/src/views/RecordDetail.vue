@@ -29,12 +29,12 @@
             <h3>Descripción</h3>
             <p>{{ getDescription }}</p>
           </div>
-          <div v-if="record.canonical_joined_metadata" class="metadata">
+          <div v-if="hasJoinedMetadata" class="metadata">
             <button class="metadata-toggle" @click="metadatosAbiertos = !metadatosAbiertos">
               Metadatos {{ metadatosAbiertos ? '▲' : '▼' }}
             </button>
             <table v-if="metadatosAbiertos">
-              <tr v-for="(value, key) in record.canonical_joined_metadata" :key="key">
+              <tr v-for="(value, key) in record.joined_metadata" :key="key">
                 <td class="meta-key">{{ formatKey(key) }}</td>
                 <td class="meta-value">{{ formatValue(value) }}</td>
               </tr>
@@ -106,6 +106,10 @@ export default {
         id: col.id,
         title: typeof col.title === 'string' ? col.title : col.title?.[Object.keys(col.title)[0]] || 'Colección'
       }))
+    },
+    hasJoinedMetadata() {
+      const m = this.record?.joined_metadata
+      return m && typeof m === 'object' && Object.keys(m).length > 0
     },
     associatedImages() {
       const imgs = []

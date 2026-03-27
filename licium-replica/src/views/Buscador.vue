@@ -49,12 +49,33 @@ import Pagination from '../components/Pagination.vue'
 export default {
   components: { RecordCard, Pagination },
   data() {
-    return { query: '', coleccionSeleccionada: '', colecciones: [], resultados: [], loading: false, buscado: false, currentPage: 1, totalResultados: 0, limit: 24 }
+    return {
+      query: '',
+      coleccionSeleccionada: '',
+      colecciones: [],
+      resultados: [],
+      loading: false,
+      buscado: false,
+      currentPage: 1,
+      totalResultados: 0,
+      limit: 24
+    }
   },
   computed: {
     totalPages() { return Math.ceil(this.totalResultados / this.limit) || 1 }
   },
-  created() { this.cargarColecciones() },
+  created() {
+    // restaurar estado desde URL
+    const r = this.$route.query
+    if (r.q) this.query = r.q
+    if (r.col) this.coleccionSeleccionada = r.col
+    if (r.page) this.currentPage = parseInt(r.page) || 1
+
+    this.cargarColecciones()
+
+    // si había búsqueda guardada, relanzarla
+    if (this.query || this.coleccionSeleccionada) this.fetchResultados()
+  },
   methods: {
     async cargarColecciones() {
       try {
@@ -64,22 +85,47 @@ export default {
         this.colecciones = Array.isArray(dataRaw) ? dataRaw.filter(c => c !== null) : []
       } catch (err) { console.error('Error cargando colecciones:', err) }
     },
-    buscar() { this.currentPage = 1; this.fetchResultados() },
+    updateUrl() {
+      const q = {}
+      if (this.query) q.q = this.query
+      if (this.coleccionSeleccionada) q.col = this.coleccionSeleccionada
+      if (this.currentPage > 1) q.page = this.currentPage
+      this.$router.replace({ query: q }).catch(() => {})
+    },
+    buscar() {
+      this.currentPage = 1
+      this.updateUrl()
+      this.fetchResultados()
+    },
     async fetchResultados() {
-      this.loading = true; this.buscado = true
+      this.loading = true
+      this.buscado = true
       try {
         const offset = (this.currentPage - 1) * this.limit
-        const params = { query: this.query, offset, limit: this.limit }
-        if (this.coleccionSeleccionada) params.collectionId = this.coleccionSeleccionada
-        const response = await searchRecords(params)
+        // query y collectionId van SOLO dentro del domain en searchRecords, nunca como &search=
+        const response = await searchRecords({
+          query: this.query,
+          collectionId: this.coleccionSeleccionada,
+          offset,
+          limit: this.limit
+        })
         const data = response.data
         const dataRaw = data?.items || data?.data?.items || data?.data || []
         this.resultados = Array.isArray(dataRaw) ? dataRaw.filter(r => r !== null) : []
         this.totalResultados = data?.total || data?.data?.total || this.resultados.length
-      } catch (err) { console.error('Error búsqueda:', err); this.resultados = [] }
-      finally { this.loading = false }
+      } catch (err) {
+        console.error('Error búsqueda:', err)
+        this.resultados = []
+      } finally {
+        this.loading = false
+      }
     },
-    goToPage(page) { this.currentPage = page; this.fetchResultados(); window.scrollTo({ top: 0, behavior: 'smooth' }) },
+    goToPage(page) {
+      this.currentPage = page
+      this.updateUrl()
+      this.fetchResultados()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
     getColTitle(col) {
       if (!col.title) return 'Sin título'
       if (typeof col.title === 'string') return col.title
@@ -137,7 +183,6 @@ export default {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ff85b1' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 1.5rem center;
-  /* Necesario para que el icono se vea sobre el fondo de la variable */
   background-color: var(--input-bg);
 }
 .search-select:focus { border-color: var(--primary-pink); }

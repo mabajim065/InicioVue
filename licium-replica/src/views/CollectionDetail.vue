@@ -16,12 +16,12 @@
           <p v-if="getDescription" class="col-description">{{ getDescription }}</p>
         </div>
       </div>
-      <div v-if="collection.canonical_joined_metadata" class="metadata">
+      <div v-if="collection.joined_metadata && Object.keys(collection.joined_metadata).length" class="metadata">
         <button class="metadata-toggle" @click="metadatosAbiertos = !metadatosAbiertos">
           Metadatos {{ metadatosAbiertos ? '▲' : '▼' }}
         </button>
         <table v-if="metadatosAbiertos">
-          <tr v-for="(value, key) in collection.canonical_joined_metadata" :key="key">
+          <tr v-for="(value, key) in collection.joined_metadata" :key="key">
             <td class="meta-key">{{ formatKey(key) }}</td>
             <td class="meta-value">{{ formatValue(value) }}</td>
           </tr>
