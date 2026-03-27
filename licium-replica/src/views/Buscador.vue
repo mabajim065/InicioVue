@@ -65,7 +65,7 @@ export default {
     totalPages() { return Math.ceil(this.totalResultados / this.limit) || 1 }
   },
   created() {
-    // restaurar estado desde URL
+    // Restaurar estado desde URL al volver desde un record
     const r = this.$route.query
     if (r.q) this.query = r.q
     if (r.col) this.coleccionSeleccionada = r.col
@@ -73,8 +73,11 @@ export default {
 
     this.cargarColecciones()
 
-    // si había búsqueda guardada, relanzarla
-    if (this.query || this.coleccionSeleccionada) this.fetchResultados()
+    // Si había búsqueda en la URL, relanzarla automáticamente
+    if (this.query || this.coleccionSeleccionada) {
+      this.buscado = true
+      this.fetchResultados()
+    }
   },
   methods: {
     async cargarColecciones() {
@@ -93,6 +96,8 @@ export default {
       this.$router.replace({ query: q }).catch(() => {})
     },
     buscar() {
+      // No buscar si no hay ningún filtro activo
+      if (!this.query.trim() && !this.coleccionSeleccionada) return
       this.currentPage = 1
       this.updateUrl()
       this.fetchResultados()
@@ -102,7 +107,7 @@ export default {
       this.buscado = true
       try {
         const offset = (this.currentPage - 1) * this.limit
-        // query y collectionId van SOLO dentro del domain en searchRecords, nunca como &search=
+        // query y collectionId van SIEMPRE dentro del domain — nunca como &search=
         const response = await searchRecords({
           query: this.query,
           collectionId: this.coleccionSeleccionada,

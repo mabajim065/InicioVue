@@ -1,56 +1,84 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import axios from 'axios'
 
-// Importación de vistas
-import Home from '../views/home.vue'
-import RecordList from '../views/RecordList.vue'
-import RecordDetail from '../views/RecordDetail.vue'
-import CollectionList from '../views/CollectionList.vue'
-import CollectionDetail from '../views/CollectionDetail.vue'
-import Buscador from '../views/Buscador.vue'
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://arcadium.cluster24.libnamic.eu'
 
-// Definición de rutas
-const routes = [
-  {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    // Listado de records con paginación
-    path: '/record',
-    name: 'RecordList',
-    component: RecordList
-  },
-  {
-    // Detalle de un record por id
-    path: '/record/:id',
-    name: 'RecordDetail',
-    component: RecordDetail
-  },
-  {
-    // Listado de colecciones
-    path: '/collections',
-    name: 'CollectionList',
-    component: CollectionList
-  },
-  {
-    // Detalle de una colección por id
-    path: '/collections/:id',
-    name: 'CollectionDetail',
-    component: CollectionDetail
-  },
-  {
-    // Página de buscador
-    path: '/buscador',
-    name: 'Buscador',
-    component: Buscador
-  }
-]
-
-// Crear el router con historial de navegación
-const router = createRouter({
-  history: createWebHistory(),
-  routes
+// conexión con la API
+const api = axios.create({
+  baseURL: '/api/glam'
 })
 
-export default router
+// trae los records, de 24 en 24
+export function getRecords(offset = 0, limit = 24, collectionId = null) {
+  const params = {
+    with_labels: 1,
+    search_all_languages: 1,
+    fields: 'thumbnail,title,author,date,collections.id,collections.title,id',
+    limit,
+    offset
+  }
+  if (collectionId) {
+    params['domain'] = JSON.stringify({
+      op: 'and',
+      children: [{ type: 'condition', field: 'collections', operator: 'in', value: [Number(collectionId)] }]
+    })
+  }
+  return api.get('/record', { params })
+}
+
+// trae todo el detalle de un record concreto
+export function getRecordDetail(id) {
+  return api.get(`/record/${id}`, {
+    params: {
+      with_labels: 1,
+      fields: 'id,title,description,joined_metadata,thumbnail,collections.id,collections.title'
+    }
+  })
+}
+
+// trae las colecciones, de 24 en 24
+export function getCollections(offset = 0, limit = 24) {
+  return api.get('/collection', {
+    params: {
+      with_labels: 1,
+      fields: 'id,thumbnail,title,description',
+      limit,
+      offset
+    }
+  })
+}
+
+// trae el detalle de una colección concreta
+export function getCollectionDetail(id) {
+  return api.get(`/collection/${id}`, {
+    params: {
+      with_labels: 1,
+      fields: 'id,title,description,thumbnail,joined_metadata'
+    }
+  })
+}
+
+// busca records — texto y colección van SIEMPRE dentro del domain, NUNCA como &search=
+// si ambos están vacíos no construye domain (devuelve todos los records)
+export function searchRecords({ query = '', collectionId = '', offset = 0, limit = 24 } = {}) {
+  const params = {
+    with_labels: 1,
+    search_all_languages: 1,
+    fields: 'thumbnail,title,author,date,collections.id,collections.title,id',
+    limit,
+    offset
+  }
+
+  const children = []
+  if (query && query.trim()) {
+    children.push({ type: 'text', mode: 'fulltext', value: query.trim() })
+  }
+  if (collectionId) {
+    children.push({ type: 'condition', field: 'collections', operator: 'in', value: [Number(collectionId)] })
+  }
+
+  if (children.length > 0) {
+    params['domain'] = JSON.stringify({ op: 'and', children })
+  }
+
+  return api.get('/record', { params })
+}
