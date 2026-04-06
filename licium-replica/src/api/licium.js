@@ -22,15 +22,14 @@ export function getRecords(offset = 0, limit = 24, collectionId = null) {
       children: [{ type: 'condition', field: 'collections', operator: 'in', value: [Number(collectionId)] }]
     })
   }
-  return api.get('/record', { params })
+  return api.get('/records', { params })
 }
 
-// trae todo el detalle de un record concreto
 export function getRecordDetail(id) {
-  return api.get(`/record/${id}`, {
+  return api.get(`/records/${id}`, {
     params: {
       with_labels: 1,
-      fields: 'id,title,description,joined_metadata,thumbnail,collections.id,collections.title'
+      fields: 'id,title,description,canonical_joined_metadata,joined_metadata,thumbnail,collections.id,collections.title,media_items.id,media_items.path,media_items.thumbnail,media_items.title'
     }
   })
 }
@@ -75,5 +74,5 @@ export function searchRecords({ query = '', collectionId = '', offset = 0, limit
     params['domain'] = JSON.stringify({ op: 'and', children })
   }
 
-  return api.get('/record', { params })
+  return api.get('/records', { params })
 }

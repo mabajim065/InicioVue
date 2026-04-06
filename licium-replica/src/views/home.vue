@@ -18,7 +18,7 @@
           fotografías y colecciones culturales.
         </p>
         <div class="hero-buttons">
-          <router-link to="/record" class="btn btn-primary">
+          <router-link to="/records" class="btn btn-primary">
             Ver Records <span class="btn-arrow">→</span>
           </router-link>
           <router-link to="/collections" class="btn btn-secondary">

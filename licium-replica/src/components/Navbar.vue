@@ -7,7 +7,7 @@
       <div class="nav-actions">
         
         <div class="navbar-links desktop">
-          <router-link to="/record" class="nav-link" active-class="active">Records</router-link>
+          <router-link to="/records" class="nav-link" active-class="active">Records</router-link>
           <router-link to="/collections" class="nav-link" active-class="active">Colecciones</router-link>
           <router-link to="/buscador" class="nav-link" active-class="active">Buscador</router-link>
         </div>
@@ -31,7 +31,7 @@
     </div>
 
     <div class="mobile-menu" :class="{ open: menuAbierto }">
-      <router-link to="/record" class="mobile-link" active-class="active" @click="menuAbierto = false">Records</router-link>
+      <router-link to="/records" class="mobile-link" active-class="active" @click="menuAbierto = false">Records</router-link>
       <router-link to="/collections" class="mobile-link" active-class="active" @click="menuAbierto = false">Colecciones</router-link>
       <router-link to="/buscador" class="mobile-link" active-class="active" @click="menuAbierto = false">Buscador</router-link>
     </div>

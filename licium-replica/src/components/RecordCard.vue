@@ -1,5 +1,5 @@
 <template>
-  <router-link :to="`/record/${record.id}`" class="record-card">
+  <router-link :to="`/records/${record.id}`" class="record-card">
     
     <div class="card-image">
       <img
