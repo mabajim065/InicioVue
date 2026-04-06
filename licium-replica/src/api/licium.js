@@ -25,7 +25,6 @@ export function getRecords(offset = 0, limit = 24, collectionId = null) {
   return api.get('/record', { params })
 }
 
-// trae el detalle de un record (con todos los campos que pidió Daniel)
 export function getRecordDetail(id) {
   return api.get(`/record/${id}`, {
     params: {
@@ -57,7 +56,7 @@ export function getCollectionDetail(id) {
   })
 }
 
-// busca records 
+// busca records — texto y colección van SIEMPRE dentro del domain, nunca como &search=
 export function searchRecords({ query = '', collectionId = '', offset = 0, limit = 24 } = {}) {
   const params = {
     with_labels: 1,

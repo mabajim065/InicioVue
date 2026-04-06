@@ -147,9 +147,6 @@ function toAbsUrl(url) {
   return API_BASE + (url.startsWith('/') ? url : '/' + url)
 }
 
-/**
- * Fuerza el parámetro ?size=large para alta calidad (petición de Daniel)
- */
 function forceLargeSize(url) {
   if (!url) return null
   const absUrl = toAbsUrl(url)
@@ -163,8 +160,8 @@ function forceLargeSize(url) {
 }
 
 /**
- * Resuelve el fallo de [object Object].
- * Extrae texto legible de un objeto value según su "type" (literal, authority, resource).
+ * Extrae texto legible de un objeto value según su "type".
+ * Soporta: literal, authority, resource, y objetos genéricos.
  */
 function extractValueText(v) {
   if (v === null || v === undefined) return ''
@@ -172,12 +169,10 @@ function extractValueText(v) {
 
   const type = v.type || v['@type'] || ''
 
-  // Manejar literales (ej. fechas, textos)
   if (type === 'literal' || type === 'xsd:string') {
     return String(v['@value'] ?? v.value ?? '')
   }
 
-  // Manejar Authority o Resource (ej. Cervantes)
   if (type === 'authority' || type === 'resource') {
     if (v.label) {
       if (typeof v.label === 'string') return v.label
@@ -187,22 +182,22 @@ function extractValueText(v) {
     return v.uri || v['@id'] || v.id || ''
   }
 
-  // Fallback de seguridad
+  // Sin type explícito → intentar extraer valor más probable
   return String(v['@value'] ?? v.value ?? v.label ?? v.uri ?? v['@id'] ?? JSON.stringify(v))
 }
 
 /**
- * Parsea un campo de joined_metadata.
- * Resuelve el problema de mostrar la clave cruda (DCTERMS:CREATOR).
+ * Parsea un campo de joined_metadata (estructura { label, values: [...] })
+ * y devuelve { key, label, value }.
+ * La etiqueta viene de la API (fieldData.label), con fallback en LABEL_FALLBACK.
  */
 function parseJoinedField(key, fieldData) {
   const lowerKey = key.toLowerCase()
   let label = LABEL_FALLBACK[lowerKey] || key
-
   let values = []
 
   if (fieldData && typeof fieldData === 'object' && !Array.isArray(fieldData)) {
-    if (fieldData.label) label = fieldData.label // Prioriza la etiqueta de la API
+    if (fieldData.label) label = fieldData.label
     if (fieldData.values) {
       values = Array.isArray(fieldData.values) ? fieldData.values : [fieldData.values]
     }
@@ -216,9 +211,6 @@ function parseJoinedField(key, fieldData) {
   return { key: lowerKey, label, value }
 }
 
-/**
- * Ordena usando las claves en minúscula para asegurar coherencia
- */
 function applyFieldsOrder(rows) {
   const orderMap = {}
   METADATA_FIELDS_ORDER.forEach((k, i) => { orderMap[k.toLowerCase()] = i })
@@ -247,7 +239,7 @@ export default {
         const keys = Object.keys(thumb)
         thumb = keys.length ? thumb[keys[0]] : null
       }
-      return forceLargeSize(thumb) // Se asegura de cargar el principal en grande
+      return forceLargeSize(thumb)
     },
 
     getTitle() {
@@ -274,7 +266,7 @@ export default {
       }))
     },
 
-    // Metadatos canónicos
+    // canonical_joined_metadata → siempre visible, misma estructura { label, values }
     canonicalRows() {
       const meta = this.record?.canonical_joined_metadata
       if (!meta || typeof meta !== 'object') return []
@@ -284,7 +276,7 @@ export default {
       return applyFieldsOrder(rows)
     },
 
-    // Metadatos crudos (botón)
+    // joined_metadata → desplegable
     joinedRows() {
       const meta = this.record?.joined_metadata
       if (!meta || typeof meta !== 'object') return []
@@ -294,7 +286,7 @@ export default {
       return applyFieldsOrder(rows)
     },
 
-    // Galería
+    // Galería desde media_items, prefiriendo size=large
     galleryImages() {
       const result = []
       if (this.mainImageUrl) {
@@ -306,18 +298,19 @@ export default {
 
       for (const item of items) {
         let displayUrl = null
-        
-        // Coger el thumbnail o path
+
+        // Preferir large, luego medium, luego small
         if (item.thumbnail && typeof item.thumbnail === 'object') {
           displayUrl = toAbsUrl(item.thumbnail.large || item.thumbnail.medium || item.thumbnail.small || null)
         } else if (typeof item.thumbnail === 'string' && item.thumbnail) {
           displayUrl = toAbsUrl(item.thumbnail)
         } else if (item.path) {
+          // Fallback: path del item
           displayUrl = toAbsUrl(item.path)
         }
 
         if (displayUrl && !result.find(r => r.display === displayUrl)) {
-          // Guardamos la versión forzada a size=large para el click
+          // Añadir ?size=large si la URL es relativa al servidor
           result.push({ 
             display: displayUrl, 
             large: forceLargeSize(displayUrl) 
@@ -408,13 +401,11 @@ export default {
 .description h3 { color: var(--soft-pink); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.8rem; }
 .description p { color: var(--text-body); line-height: 1.7; }
 
-/* Metadatos canónicos — siempre visibles */
 .canonical-metadata { margin-bottom: 1.5rem; }
 .canonical-metadata table { width: 100%; border-collapse: collapse; }
 .canonical-metadata tr { border-bottom: 1px solid var(--meta-row-border); }
 .canonical-metadata td { padding: 0.7rem 0; vertical-align: top; }
 
-/* Metadatos técnicos — desplegables */
 .metadata { margin-top: 1.5rem; }
 .metadata-toggle {
   background: var(--glass-pink);
@@ -437,7 +428,6 @@ export default {
 .meta-key   { color: var(--meta-key-color);   font-size: 0.85rem; width: 35%; font-weight: 500; text-transform: capitalize; }
 .meta-value { color: var(--meta-value-color); font-size: 0.85rem; }
 
-/* Galería */
 .gallery-section { margin-top: 2.5rem; }
 .gallery-title { color: var(--soft-pink); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; }
 .gallery-scroll {
@@ -455,7 +445,6 @@ export default {
 .gallery-item.active { border-color: var(--primary-pink); }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Lightbox */
 .lightbox {
   position: fixed; inset: 0;
   background: rgba(0,0,0,0.88);
