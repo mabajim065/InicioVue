@@ -12,7 +12,6 @@
       <button @click="$router.back()" class="back-btn">← Volver</button>
       <div class="detail-layout">
 
-        <!-- Columna izquierda: imagen principal -->
         <div class="detail-image">
           <img
             v-if="mainImageUrl"
@@ -24,11 +23,9 @@
           <div v-else class="no-image"></div>
         </div>
 
-        <!-- Columna derecha: info + metadatos -->
         <div class="detail-info">
           <h1>{{ getTitle }}</h1>
 
-          <!-- Colecciones -->
           <div v-if="getCollections.length" class="collections-list">
             <h3>Colecciones</h3>
             <div class="col-tags">
@@ -43,13 +40,11 @@
             </div>
           </div>
 
-          <!-- Descripción -->
           <div v-if="getDescription" class="description">
             <h3>Descripción</h3>
             <p>{{ getDescription }}</p>
           </div>
 
-          <!-- Metadatos canónicos: siempre visibles -->
           <div v-if="canonicalRows.length" class="canonical-metadata">
             <table>
               <tr v-for="row in canonicalRows" :key="row.key">
@@ -59,7 +54,6 @@
             </table>
           </div>
 
-          <!-- joined_metadata: desplegable, etiqueta desde la API -->
           <div v-if="joinedRows.length" class="metadata">
             <button class="metadata-toggle" @click="metadatosAbiertos = !metadatosAbiertos">
               Metadatos {{ metadatosAbiertos ? '▲' : '▼' }}
@@ -74,7 +68,6 @@
         </div>
       </div>
 
-      <!-- Galería (media_items, size=large) -->
       <div v-if="galleryImages.length > 1" class="gallery-section">
         <h3 class="gallery-title">Imágenes asociadas</h3>
         <div class="gallery-scroll">
@@ -90,7 +83,6 @@
         </div>
       </div>
 
-      <!-- Lightbox -->
       <div v-if="lightboxUrl" class="lightbox" @click.self="lightboxUrl = null">
         <button class="lightbox-close" @click="lightboxUrl = null">✕</button>
         <img :src="lightboxUrl" :alt="getTitle" />
@@ -156,8 +148,23 @@ function toAbsUrl(url) {
 }
 
 /**
- * Extrae texto legible de un objeto value según su "type".
- * Soporta: literal, authority, resource, y objetos genéricos.
+ * Fuerza el parámetro ?size=large para alta calidad (petición de Daniel)
+ */
+function forceLargeSize(url) {
+  if (!url) return null
+  const absUrl = toAbsUrl(url)
+  try {
+    const u = new URL(absUrl)
+    u.searchParams.set('size', 'large')
+    return u.toString()
+  } catch (e) {
+    return absUrl
+  }
+}
+
+/**
+ * Resuelve el fallo de [object Object].
+ * Extrae texto legible de un objeto value según su "type" (literal, authority, resource).
  */
 function extractValueText(v) {
   if (v === null || v === undefined) return ''
@@ -165,10 +172,12 @@ function extractValueText(v) {
 
   const type = v.type || v['@type'] || ''
 
+  // Manejar literales (ej. fechas, textos)
   if (type === 'literal' || type === 'xsd:string') {
     return String(v['@value'] ?? v.value ?? '')
   }
 
+  // Manejar Authority o Resource (ej. Cervantes)
   if (type === 'authority' || type === 'resource') {
     if (v.label) {
       if (typeof v.label === 'string') return v.label
@@ -178,30 +187,41 @@ function extractValueText(v) {
     return v.uri || v['@id'] || v.id || ''
   }
 
-  // Sin type explícito → intentar extraer valor más probable
+  // Fallback de seguridad
   return String(v['@value'] ?? v.value ?? v.label ?? v.uri ?? v['@id'] ?? JSON.stringify(v))
 }
 
 /**
- * Parsea un campo de joined_metadata (estructura { label, values: [...] })
- * y devuelve { key, label, value }.
- * La etiqueta viene de la API (fieldData.label), con fallback en LABEL_FALLBACK.
+ * Parsea un campo de joined_metadata.
+ * Resuelve el problema de mostrar la clave cruda (DCTERMS:CREATOR).
  */
 function parseJoinedField(key, fieldData) {
-  if (!fieldData || typeof fieldData !== 'object') {
-    return { key, label: LABEL_FALLBACK[key] || key, value: String(fieldData ?? '') }
+  const lowerKey = key.toLowerCase()
+  let label = LABEL_FALLBACK[lowerKey] || key
+
+  let values = []
+
+  if (fieldData && typeof fieldData === 'object' && !Array.isArray(fieldData)) {
+    if (fieldData.label) label = fieldData.label // Prioriza la etiqueta de la API
+    if (fieldData.values) {
+      values = Array.isArray(fieldData.values) ? fieldData.values : [fieldData.values]
+    }
+  } else if (Array.isArray(fieldData)) {
+    values = fieldData
+  } else {
+    values = [fieldData]
   }
-  const label = (typeof fieldData.label === 'string' && fieldData.label)
-    || LABEL_FALLBACK[key]
-    || key
-  const values = Array.isArray(fieldData.values) ? fieldData.values : []
+
   const value = values.map(extractValueText).filter(Boolean).join(', ')
-  return { key, label, value }
+  return { key: lowerKey, label, value }
 }
 
+/**
+ * Ordena usando las claves en minúscula para asegurar coherencia
+ */
 function applyFieldsOrder(rows) {
   const orderMap = {}
-  METADATA_FIELDS_ORDER.forEach((k, i) => { orderMap[k] = i })
+  METADATA_FIELDS_ORDER.forEach((k, i) => { orderMap[k.toLowerCase()] = i })
   return [...rows].sort((a, b) => (orderMap[a.key] ?? 9999) - (orderMap[b.key] ?? 9999))
 }
 
@@ -227,7 +247,7 @@ export default {
         const keys = Object.keys(thumb)
         thumb = keys.length ? thumb[keys[0]] : null
       }
-      return toAbsUrl(thumb)
+      return forceLargeSize(thumb) // Se asegura de cargar el principal en grande
     },
 
     getTitle() {
@@ -254,7 +274,7 @@ export default {
       }))
     },
 
-    // canonical_joined_metadata → siempre visible, misma estructura { label, values }
+    // Metadatos canónicos
     canonicalRows() {
       const meta = this.record?.canonical_joined_metadata
       if (!meta || typeof meta !== 'object') return []
@@ -264,7 +284,7 @@ export default {
       return applyFieldsOrder(rows)
     },
 
-    // joined_metadata → desplegable
+    // Metadatos crudos (botón)
     joinedRows() {
       const meta = this.record?.joined_metadata
       if (!meta || typeof meta !== 'object') return []
@@ -274,7 +294,7 @@ export default {
       return applyFieldsOrder(rows)
     },
 
-    // Galería desde media_items, prefiriendo size=large
+    // Galería
     galleryImages() {
       const result = []
       if (this.mainImageUrl) {
@@ -286,27 +306,22 @@ export default {
 
       for (const item of items) {
         let displayUrl = null
-        let largeUrl = null
-
+        
+        // Coger el thumbnail o path
         if (item.thumbnail && typeof item.thumbnail === 'object') {
-          // Preferir large, luego medium, luego small
-          largeUrl  = toAbsUrl(item.thumbnail.large || item.thumbnail.medium || item.thumbnail.small || null)
-          displayUrl = largeUrl
+          displayUrl = toAbsUrl(item.thumbnail.large || item.thumbnail.medium || item.thumbnail.small || null)
         } else if (typeof item.thumbnail === 'string' && item.thumbnail) {
-          // Añadir ?size=large si la URL es relativa al servidor
-          const base = toAbsUrl(item.thumbnail)
-          largeUrl   = base ? base.replace(/(\?.*)?$/, '?size=large') : null
-          displayUrl = largeUrl || base
-        }
-
-        // Fallback: path del item
-        if (!displayUrl && item.path) {
+          displayUrl = toAbsUrl(item.thumbnail)
+        } else if (item.path) {
           displayUrl = toAbsUrl(item.path)
-          largeUrl   = displayUrl
         }
 
         if (displayUrl && !result.find(r => r.display === displayUrl)) {
-          result.push({ display: displayUrl, large: largeUrl || displayUrl })
+          // Guardamos la versión forzada a size=large para el click
+          result.push({ 
+            display: displayUrl, 
+            large: forceLargeSize(displayUrl) 
+          })
         }
       }
 
@@ -419,7 +434,7 @@ export default {
 .metadata tr { border-bottom: 1px solid var(--meta-row-border); }
 .metadata td { padding: 0.7rem 0; vertical-align: top; }
 
-.meta-key   { color: var(--meta-key-color);   font-size: 0.85rem; width: 35%; font-weight: 500; }
+.meta-key   { color: var(--meta-key-color);   font-size: 0.85rem; width: 35%; font-weight: 500; text-transform: capitalize; }
 .meta-value { color: var(--meta-value-color); font-size: 0.85rem; }
 
 /* Galería */

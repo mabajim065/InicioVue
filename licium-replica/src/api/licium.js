@@ -22,11 +22,12 @@ export function getRecords(offset = 0, limit = 24, collectionId = null) {
       children: [{ type: 'condition', field: 'collections', operator: 'in', value: [Number(collectionId)] }]
     })
   }
-  return api.get('/record', { params }) // <-- CORREGIDO a singular
+  return api.get('/record', { params })
 }
 
+// trae el detalle de un record (con todos los campos que pidió Daniel)
 export function getRecordDetail(id) {
-  return api.get(`/record/${id}`, { // <-- CORREGIDO a singular
+  return api.get(`/record/${id}`, {
     params: {
       with_labels: 1,
       fields: 'id,title,description,canonical_joined_metadata,joined_metadata,thumbnail,collections.id,collections.title,media_items.id,media_items.path,media_items.thumbnail,media_items.title'
@@ -56,7 +57,7 @@ export function getCollectionDetail(id) {
   })
 }
 
-// busca records — texto y colección van SIEMPRE dentro del domain, nunca como &search=
+// busca records 
 export function searchRecords({ query = '', collectionId = '', offset = 0, limit = 24 } = {}) {
   const params = {
     with_labels: 1,
