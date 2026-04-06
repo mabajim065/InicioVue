@@ -4,7 +4,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || 'https://arcadium.cluster24.li
 
 // conexión con la API
 const api = axios.create({
-  baseURL: `${API_BASE}/api/glam`
+  baseURL: '/api/glam'
 })
 
 // trae los records, de 24 en 24
