@@ -54,7 +54,24 @@
               <tr v-for="row in canonicalRows" :key="row.key">
                 <td class="meta-key">{{ row.label }}</td>
                 <td class="meta-value">
-                  <MetaValues :values="row.values" />
+                  <span class="meta-values-list">
+                    <span v-for="(v, i) in row.values" :key="i" class="meta-value-item">
+                      <span v-if="i > 0" class="meta-sep"> · </span>
+                      <span v-if="v.type === 'literal'" class="mv-literal">{{ v.text }}</span>
+                      <a v-else-if="v.type === 'uri'" :href="v.href" target="_blank" rel="noopener" class="mv-link mv-uri">{{ v.text }}</a>
+                      <a v-else-if="v.type === 'resource'" :href="v.href || undefined" target="_blank" rel="noopener" :class="['mv-link','mv-resource', !v.href && 'no-href']">{{ v.text }}</a>
+                      <span v-else-if="v.type === 'authority'" class="mv-authority">
+                        <a v-if="v.href" :href="v.href" target="_blank" rel="noopener" class="mv-link">{{ v.text }}</a>
+                        <span v-else>{{ v.text }}</span>
+                        <span v-for="b in v.badges" :key="b" class="mv-badge">{{ b }}</span>
+                      </span>
+                      <span v-else-if="v.type === 'vocabulary'" class="mv-vocabulary">
+                        <a v-if="v.href" :href="v.href" target="_blank" rel="noopener" class="mv-link mv-vocab-link">{{ v.text }}</a>
+                        <span v-else>{{ v.text }}</span>
+                      </span>
+                      <span v-else>{{ v.text }}</span>
+                    </span>
+                  </span>
                 </td>
               </tr>
             </table>
@@ -69,7 +86,24 @@
               <tr v-for="row in joinedRows" :key="row.key">
                 <td class="meta-key">{{ row.label }}</td>
                 <td class="meta-value">
-                  <MetaValues :values="row.values" />
+                  <span class="meta-values-list">
+                    <span v-for="(v, i) in row.values" :key="i" class="meta-value-item">
+                      <span v-if="i > 0" class="meta-sep"> · </span>
+                      <span v-if="v.type === 'literal'" class="mv-literal">{{ v.text }}</span>
+                      <a v-else-if="v.type === 'uri'" :href="v.href" target="_blank" rel="noopener" class="mv-link mv-uri">{{ v.text }}</a>
+                      <a v-else-if="v.type === 'resource'" :href="v.href || undefined" target="_blank" rel="noopener" :class="['mv-link','mv-resource', !v.href && 'no-href']">{{ v.text }}</a>
+                      <span v-else-if="v.type === 'authority'" class="mv-authority">
+                        <a v-if="v.href" :href="v.href" target="_blank" rel="noopener" class="mv-link">{{ v.text }}</a>
+                        <span v-else>{{ v.text }}</span>
+                        <span v-for="b in v.badges" :key="b" class="mv-badge">{{ b }}</span>
+                      </span>
+                      <span v-else-if="v.type === 'vocabulary'" class="mv-vocabulary">
+                        <a v-if="v.href" :href="v.href" target="_blank" rel="noopener" class="mv-link mv-vocab-link">{{ v.text }}</a>
+                        <span v-else>{{ v.text }}</span>
+                      </span>
+                      <span v-else>{{ v.text }}</span>
+                    </span>
+                  </span>
                 </td>
               </tr>
             </table>
@@ -77,7 +111,7 @@
         </div>
       </div>
 
-      <!-- Galería (media_items) -->
+      <!-- Galería media_items -->
       <div v-if="galleryImages.length > 1" class="gallery-section">
         <h3 class="gallery-title">Imágenes asociadas</h3>
         <div class="gallery-scroll">
@@ -165,7 +199,7 @@ const LABEL_FALLBACK = {
   'dc:relation': 'Relación', 'dc:coverage': 'Cobertura', 'dc:rights': 'Derechos',
 }
 
-// ─── Helpers ──────
+//Helpers 
 
 function toAbsUrl(url) {
   if (!url) return null
@@ -178,23 +212,23 @@ function parseValueObject(v) {
   if (v === null || v === undefined) return null
   if (typeof v !== 'object') return { type: 'literal', text: String(v), href: null }
 
-  // La API puede usar 'type' o '@type' para indicar el tipo del valor
+  // La API puede usar 'type' para indicar el tipo del valor
   const rawType = v.type || v['@type'] || ''
   const type = rawType.toLowerCase()
 
-  // ── literal / xsd:* ─────
+  // literal / xsd:* 
   if (type === 'literal' || type.startsWith('xsd:')) {
     const text = String(v['@value'] ?? v.value ?? '')
     return { type: 'literal', text, href: null }
   }
 
-  // ── uri ──────
+  // uri 
   if (type === 'uri') {
     const href = v.uri || v['@id'] || v.value || ''
     return { type: 'uri', text: href, href }
   }
 
-  // ── resource ─────
+  // resource 
   if (type === 'resource') {
     const href = v.uri || v['@id'] || v.id || null
     let text = ''
@@ -205,7 +239,7 @@ function parseValueObject(v) {
     return { type: 'resource', text, href }
   }
 
-  // ── authority ─────
+  // authority 
   if (type === 'authority') {
     let text = ''
     if (v.label) {
@@ -217,7 +251,7 @@ function parseValueObject(v) {
     return { type: 'authority', text, href: v.uri || null, badges, desc }
   }
 
-  // ── vocabulary ──────
+  // vocabulary 
   if (type === 'vocabulary' || type === 'skos:concept') {
     let text = ''
     if (v.label) {
@@ -227,24 +261,19 @@ function parseValueObject(v) {
     return { type: 'vocabulary', text, href: v.uri || v['@id'] || null }
   }
 
-  // ── fallback genérico (incluye @value directo, etc.) ─────
+  // fallback genérico 
   const text = String(v['@value'] ?? v.value ?? v.label ?? v.uri ?? v['@id'] ?? '')
   return { type: 'literal', text, href: null }
 }
 
-/**
- * Parsea un campo de joined/canonical_metadata y devuelve
- * { key, label, values: [parseValueObject, ...] }
- * Soporta tanto claves semánticas (dcterms:title) como claves locales (title)
- * usando el campo 'term' de la API cuando está disponible.
- */
+
 function parseJoinedField(key, fieldData) {
-  // La clave real a buscar en LABEL_FALLBACK: si hay 'term' (ej: 'dcterms:creator'), úsalo;
-  // si no, usa la propia key
+  // La clave real a buscar en LABEL_FALLBACK: si hay 'term' se usa, si no, usa la propia key
   const termKey = fieldData?.term || key
-  // El label viene de la API; si es genérico ('title','description'...) usa el fallback
+  // El label viene de la API si es genérico usa el fallback
   const apiLabel = typeof fieldData?.label === 'string' ? fieldData.label : ''
-  const isTrivialLabel = !apiLabel || apiLabel === key || apiLabel === termKey
+  // Es trivial si está vacío, coincide con la clave, o es un identificador sin traducción humana (no contiene ':' ni espacios)
+  const isTrivialLabel = !apiLabel || apiLabel === key || apiLabel === termKey || (!apiLabel.includes(':') && !apiLabel.includes(' '))
   const label = isTrivialLabel
     ? (LABEL_FALLBACK[termKey] || LABEL_FALLBACK[key] || apiLabel || key)
     : apiLabel
@@ -259,52 +288,8 @@ function applyFieldsOrder(rows) {
   return [...rows].sort((a, b) => (orderMap[a.key] ?? 9999) - (orderMap[b.key] ?? 9999))
 }
 
-// ─── Subcomponente MetaValues ──
-// Renderiza la lista de values enriquecidos para una fila de metadatos.
-const MetaValues = {
-  name: 'MetaValues',
-  props: { values: Array },
-  template: `
-    <span class="meta-values-list">
-      <span v-for="(v, i) in values" :key="i" class="meta-value-item">
-        <span v-if="i > 0" class="meta-sep"> · </span>
-
-        <!-- literal -->
-        <span v-if="v.type === 'literal'" class="mv-literal">{{ v.text }}</span>
-
-        <!-- uri: enlace -->
-        <a v-else-if="v.type === 'uri'"
-           :href="v.href" target="_blank" rel="noopener"
-           class="mv-link mv-uri">{{ v.text }}</a>
-
-        <!-- resource: enlace con label -->
-        <a v-else-if="v.type === 'resource'"
-           :href="v.href || undefined" target="_blank" rel="noopener"
-           :class="['mv-link', 'mv-resource', !v.href && 'no-href']">{{ v.text }}</a>
-
-        <!-- authority: nombre + badges -->
-        <span v-else-if="v.type === 'authority'" class="mv-authority">
-          <a v-if="v.href" :href="v.href" target="_blank" rel="noopener" class="mv-link">{{ v.text }}</a>
-          <span v-else>{{ v.text }}</span>
-          <span v-for="b in v.badges" :key="b" class="mv-badge">{{ b }}</span>
-        </span>
-
-        <!-- vocabulary -->
-        <span v-else-if="v.type === 'vocabulary'" class="mv-vocabulary">
-          <a v-if="v.href" :href="v.href" target="_blank" rel="noopener" class="mv-link mv-vocab-link">{{ v.text }}</a>
-          <span v-else>{{ v.text }}</span>
-        </span>
-
-        <!-- fallback -->
-        <span v-else>{{ v.text }}</span>
-      </span>
-    </span>
-  `
-}
-
-// ─── Componente principal ────────
+// Componente principal
 export default {
-  components: { MetaValues },
 
   data() {
     return {
@@ -374,7 +359,7 @@ export default {
       )
     },
 
-    // Galería: thumbnail principal + media_items
+    // Galería thumbnail principal + media_items
     galleryImages() {
       const result = []
       // Extraemos el attachment_id del thumbnail principal para deduplicar
@@ -415,7 +400,7 @@ export default {
 
         if (!displayUrl) continue
 
-        // Deduplicar por attachment_id (evita repetir la imagen principal)
+        // Deduplicar por attachment_id para evitar repetir la imagen principal
         const attachId = (displayUrl.match(/attachment_id=(\d+)/) || [])[1] || null
         const alreadyAdded = attachId
           ? result.some(r => (r.display.match(/attachment_id=(\d+)/) || [])[1] === attachId)
@@ -498,7 +483,7 @@ export default {
 /* Layout */
 .detail-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
 
-/* FIX 1: Sin imagen → ocultar columna en móvil/tablet */
+/* Sin imagen oculto la columna en móvil/tablet */
 @media (max-width: 768px) {
   .detail-layout { grid-template-columns: 1fr; }
   .detail-image.no-image-col { display: none; }
@@ -506,7 +491,7 @@ export default {
 
 /* Imagen principal */
 .detail-image img { width: 100%; border-radius: 12px; box-shadow: 0 8px 30px rgba(255,77,141,0.1); }
-/* FIX 3: cursor zoom-in al pasar, zoom-out solo dentro del lightbox */
+/* cursor zoom-in al pasar, zoom-out solo dentro del lightbox */
 .detail-image .main-img { cursor: zoom-in; transition: transform 0.2s; }
 .detail-image .main-img:hover { transform: scale(1.01); }
 .detail-image .no-image {
@@ -553,13 +538,13 @@ export default {
 .meta-key { color: var(--meta-key-color); font-size: 0.85rem; width: 35%; font-weight: 500; }
 .meta-value { color: var(--meta-value-color); font-size: 0.85rem; }
 
-/* ── Estilos de valores tipados (MetaValues) ── */
+/* Estilos de valores tipados */
 .meta-values-list { display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: baseline; }
 .meta-sep { color: var(--text-faint); }
 
 .mv-literal { color: var(--meta-value-color); }
 
-/* URI y Resource → enlace */
+/* URI y Resource */
 .mv-link {
   color: var(--primary-pink); text-decoration: underline;
   text-underline-offset: 2px; transition: color 0.2s;
@@ -568,7 +553,7 @@ export default {
 .mv-link:hover { color: var(--soft-pink); }
 .mv-link.no-href { cursor: default; text-decoration: none; color: var(--meta-value-color); }
 
-/* Authority → nombre + badges */
+/* Authority */
 .mv-authority { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.3rem; }
 .mv-badge {
   display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.45rem;
@@ -598,11 +583,11 @@ export default {
 .gallery-item.active { border-color: var(--primary-pink); }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
 
-/* ── Lightbox con navegación ── */
+/* Lightbox */
 .lightbox {
   position: fixed; inset: 0; background: rgba(0,0,0,0.92);
   z-index: 9999; display: flex; align-items: center; justify-content: center;
-  /* FIX 3: cursor normal sobre el fondo, zoom-out solo al pasar sobre la imagen */
+  /* cursor normal sobre el fondo, zoom-out solo al pasar sobre la imagen */
   cursor: default;
 }
 /* La imagen dentro sí muestra zoom-out */
@@ -622,7 +607,7 @@ export default {
 }
 .lightbox-close:hover { background: rgba(255,77,141,0.5); box-shadow: none; transform: none; }
 
-/* FIX 2: Botones anterior/siguiente */
+/* Botones anterior/siguiente */
 .lightbox-nav {
   position: absolute; top: 50%; transform: translateY(-50%);
   background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
