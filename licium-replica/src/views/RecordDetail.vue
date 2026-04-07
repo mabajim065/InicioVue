@@ -178,11 +178,14 @@ function parseValueObject(v) {
   if (v === null || v === undefined) return null
   if (typeof v !== 'object') return { type: 'literal', text: String(v), href: null }
 
-  const type = (v.type || v['@type'] || '').toLowerCase()
+  // La API puede usar 'type' o '@type' para indicar el tipo del valor
+  const rawType = v.type || v['@type'] || ''
+  const type = rawType.toLowerCase()
 
-  // ── literal ─────
-  if (type === 'literal' || type === 'xsd:string') {
-    return { type: 'literal', text: String(v['@value'] ?? v.value ?? ''), href: null }
+  // ── literal / xsd:* ─────
+  if (type === 'literal' || type.startsWith('xsd:')) {
+    const text = String(v['@value'] ?? v.value ?? '')
+    return { type: 'literal', text, href: null }
   }
 
   // ── uri ──────
@@ -209,9 +212,7 @@ function parseValueObject(v) {
       text = typeof v.label === 'string' ? v.label : Object.values(v.label)[0] || ''
     }
     if (!text) text = v.uri || v['@id'] || ''
-    // entity_types para el badge (ej: "person", "place")
     const badges = Array.isArray(v.entity_types) ? v.entity_types : []
-    // descripción canónica si viene
     const desc = v.canonical_data?.description || null
     return { type: 'authority', text, href: v.uri || null, badges, desc }
   }
@@ -226,7 +227,7 @@ function parseValueObject(v) {
     return { type: 'vocabulary', text, href: v.uri || v['@id'] || null }
   }
 
-  // ── fallback genérico ─────
+  // ── fallback genérico (incluye @value directo, etc.) ─────
   const text = String(v['@value'] ?? v.value ?? v.label ?? v.uri ?? v['@id'] ?? '')
   return { type: 'literal', text, href: null }
 }
@@ -234,10 +235,19 @@ function parseValueObject(v) {
 /**
  * Parsea un campo de joined/canonical_metadata y devuelve
  * { key, label, values: [parseValueObject, ...] }
+ * Soporta tanto claves semánticas (dcterms:title) como claves locales (title)
+ * usando el campo 'term' de la API cuando está disponible.
  */
 function parseJoinedField(key, fieldData) {
-  const label = (typeof fieldData?.label === 'string' && fieldData.label)
-    || LABEL_FALLBACK[key] || key
+  // La clave real a buscar en LABEL_FALLBACK: si hay 'term' (ej: 'dcterms:creator'), úsalo;
+  // si no, usa la propia key
+  const termKey = fieldData?.term || key
+  // El label viene de la API; si es genérico ('title','description'...) usa el fallback
+  const apiLabel = typeof fieldData?.label === 'string' ? fieldData.label : ''
+  const isTrivialLabel = !apiLabel || apiLabel === key || apiLabel === termKey
+  const label = isTrivialLabel
+    ? (LABEL_FALLBACK[termKey] || LABEL_FALLBACK[key] || apiLabel || key)
+    : apiLabel
   const rawValues = Array.isArray(fieldData?.values) ? fieldData.values : []
   const values = rawValues.map(parseValueObject).filter(v => v && v.text)
   return { key, label, values }
@@ -345,11 +355,13 @@ export default {
     canonicalRows() {
       const meta = this.record?.canonical_joined_metadata
       if (!meta || typeof meta !== 'object') return []
-      return applyFieldsOrder(
-        Object.entries(meta)
-          .map(([key, fd]) => parseJoinedField(key, fd))
-          .filter(r => r.values.length)
-      )
+      // Normalizamos la clave usando el 'term' de la API para el orden correcto
+      const rows = Object.entries(meta).map(([key, fd]) => {
+        const sortKey = fd?.term || key
+        const row = parseJoinedField(sortKey, fd)
+        return row
+      }).filter(r => r.values.length)
+      return applyFieldsOrder(rows)
     },
 
     joinedRows() {
@@ -365,9 +377,19 @@ export default {
     // Galería: thumbnail principal + media_items
     galleryImages() {
       const result = []
+      // Extraemos el attachment_id del thumbnail principal para deduplicar
+      const mainAttachId = this.mainImageUrl
+        ? (this.mainImageUrl.match(/attachment_id=(\d+)/) || [])[1] || null
+        : null
+
       if (this.mainImageUrl) {
-        result.push({ display: this.mainImageUrl, large: this.mainImageUrl })
+        // Usamos size=medium para la imagen principal en la galería
+        const mainMedium = mainAttachId
+          ? toAbsUrl(`/api/core/attachment/action_get/thumb?attachment_id=${mainAttachId}&size=medium`)
+          : this.mainImageUrl
+        result.push({ display: mainMedium, large: mainMedium })
       }
+
       const items = this.record?.media_items
       if (!Array.isArray(items)) return result
 
@@ -375,18 +397,31 @@ export default {
         let displayUrl = null, largeUrl = null
 
         if (item.thumbnail && typeof item.thumbnail === 'object') {
-          largeUrl = toAbsUrl(item.thumbnail.large || item.thumbnail.medium || item.thumbnail.small || null)
+          // thumbnail como objeto con keys de tamaño
+          const thumbVal = item.thumbnail.medium || item.thumbnail.large || item.thumbnail.small || null
+          largeUrl = toAbsUrl(thumbVal)
           displayUrl = largeUrl
         } else if (typeof item.thumbnail === 'string' && item.thumbnail) {
+          // thumbnail como string: reemplazamos el size por 'medium'
           const base = toAbsUrl(item.thumbnail)
-          largeUrl = base ? base.replace(/(\?.*)?$/, '?size=large') : null
-          displayUrl = largeUrl || base
+          displayUrl = base ? base.replace(/size=\w+/, 'size=medium') : null
+          largeUrl = displayUrl
         }
+
         if (!displayUrl && item.path) {
           displayUrl = toAbsUrl(item.path)
           largeUrl = displayUrl
         }
-        if (displayUrl && !result.find(r => r.display === displayUrl)) {
+
+        if (!displayUrl) continue
+
+        // Deduplicar por attachment_id (evita repetir la imagen principal)
+        const attachId = (displayUrl.match(/attachment_id=(\d+)/) || [])[1] || null
+        const alreadyAdded = attachId
+          ? result.some(r => (r.display.match(/attachment_id=(\d+)/) || [])[1] === attachId)
+          : result.some(r => r.display === displayUrl)
+
+        if (!alreadyAdded) {
           result.push({ display: displayUrl, large: largeUrl || displayUrl })
         }
       }
