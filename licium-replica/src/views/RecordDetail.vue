@@ -222,10 +222,15 @@ function parseValueObject(v) {
     return { type: 'literal', text, href: null }
   }
 
-  // uri 
+  // uri
   if (type === 'uri') {
     const href = v.uri || v['@id'] || v.value || ''
-    return { type: 'uri', text: href, href }
+    let text = ''
+    if (v.label) {
+      text = typeof v.label === 'string' ? v.label : (Object.values(v.label)[0] || '')
+    }
+    if (!text) text = href
+    return { type: 'uri', text, href }
   }
 
   // resource 
