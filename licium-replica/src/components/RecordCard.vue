@@ -111,7 +111,7 @@ export default {
 
 .card-image {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   background-color: var(--image-placeholder-bg);
   overflow: hidden;
   position: relative;
@@ -176,6 +176,7 @@ export default {
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -188,15 +189,16 @@ export default {
 }
 
 .author {
-  color: var(--soft-pink, #ff85b1);
+  color: var(--card-author-color);
   font-size: 0.85rem;
   margin: 0;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .date {
-  color: var(--text-muted);
-  font-size: 0.8rem;
+  color: var(--card-date-color);
+  font-size: 0.82rem;
   margin: 0;
+  font-weight: 500;
 }
 </style>

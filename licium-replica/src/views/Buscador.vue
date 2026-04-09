@@ -206,7 +206,16 @@ export default {
 }
 .btn-buscar:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 77, 141, 0.4); }
 
-.results-count { color: var(--text-subtle); font-size: 0.9rem; margin-bottom: 1.5rem; text-align: center; }
+.results-count {
+  color: var(--results-count-color);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1.8rem;
+  text-align: center;
+  letter-spacing: 0.3px;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
 .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
 
 .loading { text-align: center; padding: 4rem 0; color: var(--loading-text); }

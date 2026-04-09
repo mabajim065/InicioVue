@@ -48,6 +48,11 @@ import Navbar from './components/Navbar.vue'
   --text-subtle: rgba(255, 255, 255, 0.5);
   --text-faint: rgba(255, 255, 255, 0.4);
 
+  /* Metadatos de tarjetas — contraste garantizado sobre fondo oscuro */
+  --card-author-color: #e8a0c0;   /* rosa claro saturado, ~5.2:1 sobre #1a1a2e */
+  --card-date-color: #b0b0c8;     /* gris lila claro, ~4.6:1 sobre #1a1a2e */
+  --results-count-color: #c8c8e0; /* gris azulado claro, legible */
+
   /* Metadatos */
   --meta-key-color: rgba(255, 133, 177, 0.7);
   --meta-value-color: rgba(255, 255, 255, 0.8);
@@ -106,6 +111,11 @@ import Navbar from './components/Navbar.vue'
   --text-body: rgba(26, 26, 46, 0.75);
   --text-subtle: rgba(26, 26, 46, 0.55);
   --text-faint: rgba(26, 26, 46, 0.45);
+
+  /* Metadatos de tarjetas — contraste garantizado sobre fondo blanco */
+  --card-author-color: #c0155a;   /* rosa oscuro, ~4.8:1 sobre #ffffff */
+  --card-date-color: #555570;     /* gris azulado oscuro, ~5.8:1 sobre #ffffff */
+  --results-count-color: #3a3a5c; /* casi negro-azulado, muy legible */
 
   /* Metadatos */
   --meta-key-color: var(--primary-pink);
