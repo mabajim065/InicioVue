@@ -76,3 +76,12 @@ export function searchRecords({ query = '', collectionId = '', offset = 0, limit
 
   return api.get('/record', { params })
 }
+
+export function getMediaDetail(id) {
+  return api.get(`/media/${id}`, {
+    params: {
+      with_labels: 1,
+      fields: 'id,title,description,path,thumbnail,media_type,metadata,joined_metadata'
+    }
+  })
+}

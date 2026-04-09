@@ -5,6 +5,7 @@ import RecordList from '../views/RecordList.vue'
 import RecordDetail from '../views/RecordDetail.vue'
 import CollectionList from '../views/CollectionList.vue'
 import CollectionDetail from '../views/CollectionDetail.vue'
+import MediaDetail from '../views/MediaDetail.vue'
 import Buscador from '../views/Buscador.vue'
 
 const router = createRouter({
@@ -15,6 +16,7 @@ const router = createRouter({
     { path: '/records/:id', component: RecordDetail },
     { path: '/collections', component: CollectionList },
     { path: '/collections/:id', component: CollectionDetail },
+    { path: '/media/:id', component: MediaDetail },
     { path: '/buscador', component: Buscador },
   ]
 })

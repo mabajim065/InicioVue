@@ -253,8 +253,7 @@ function parseValueObject(v) {
     } else if (model === 'glam.collection' && id !== null) {
       routerTo = `/collections/${id}`
     } else if (model === 'glam.media' && id !== null) {
-      // No hay ruta interna para media: enlace externo a la API
-      href = href || `${API_BASE}/api/glam/media/${id}`
+      routerTo = `/media/${id}`
     }
 
     let text = ''
