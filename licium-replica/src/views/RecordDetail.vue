@@ -59,7 +59,11 @@
                       <span v-if="i > 0" class="meta-sep"> · </span>
                       <span v-if="v.type === 'literal'" class="mv-literal">{{ v.text }}</span>
                       <a v-else-if="v.type === 'uri'" :href="v.href" target="_blank" rel="noopener" class="mv-link mv-uri">{{ v.text }}</a>
-                      <a v-else-if="v.type === 'resource'" :href="v.href || undefined" target="_blank" rel="noopener" :class="['mv-link','mv-resource', !v.href && 'no-href']">{{ v.text }}</a>
+                      <template v-else-if="v.type === 'resource'">
+                        <router-link v-if="v.routerTo" :to="v.routerTo" class="mv-link mv-resource">{{ v.text }}</router-link>
+                        <a v-else-if="v.href" :href="v.href" target="_blank" rel="noopener" class="mv-link mv-resource">{{ v.text }}</a>
+                        <span v-else class="mv-resource no-href">{{ v.text }}</span>
+                      </template>
                       <span v-else-if="v.type === 'authority'" class="mv-authority">
                         <a v-if="v.href" :href="v.href" target="_blank" rel="noopener" class="mv-link">{{ v.text }}</a>
                         <span v-else>{{ v.text }}</span>
@@ -91,7 +95,11 @@
                       <span v-if="i > 0" class="meta-sep"> · </span>
                       <span v-if="v.type === 'literal'" class="mv-literal">{{ v.text }}</span>
                       <a v-else-if="v.type === 'uri'" :href="v.href" target="_blank" rel="noopener" class="mv-link mv-uri">{{ v.text }}</a>
-                      <a v-else-if="v.type === 'resource'" :href="v.href || undefined" target="_blank" rel="noopener" :class="['mv-link','mv-resource', !v.href && 'no-href']">{{ v.text }}</a>
+                      <template v-else-if="v.type === 'resource'">
+                        <router-link v-if="v.routerTo" :to="v.routerTo" class="mv-link mv-resource">{{ v.text }}</router-link>
+                        <a v-else-if="v.href" :href="v.href" target="_blank" rel="noopener" class="mv-link mv-resource">{{ v.text }}</a>
+                        <span v-else class="mv-resource no-href">{{ v.text }}</span>
+                      </template>
                       <span v-else-if="v.type === 'authority'" class="mv-authority">
                         <a v-if="v.href" :href="v.href" target="_blank" rel="noopener" class="mv-link">{{ v.text }}</a>
                         <span v-else>{{ v.text }}</span>
@@ -233,15 +241,28 @@ function parseValueObject(v) {
     return { type: 'uri', text, href }
   }
 
-  // resource 
+  // resource
   if (type === 'resource') {
-    const href = v.uri || v['@id'] || v.id || null
+    const id = v.id ?? null
+    const model = v.model || ''
+    let routerTo = null
+    let href = v.uri || v['@id'] || null
+
+    if (model === 'glam.record' && id !== null) {
+      routerTo = `/records/${id}`
+    } else if (model === 'glam.collection' && id !== null) {
+      routerTo = `/collections/${id}`
+    } else if (model === 'glam.media' && id !== null) {
+      // No hay ruta interna para media: enlace externo a la API
+      href = href || `${API_BASE}/api/glam/media/${id}`
+    }
+
     let text = ''
     if (v.label) {
       text = typeof v.label === 'string' ? v.label : Object.values(v.label)[0] || ''
     }
-    if (!text) text = href || ''
-    return { type: 'resource', text, href }
+    if (!text) text = routerTo || href || ''
+    return { type: 'resource', text, href, routerTo }
   }
 
   // authority 
@@ -642,4 +663,40 @@ export default {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .error { text-align: center; padding: 3rem; color: var(--primary-pink); }
+
+/* Responsive Metadatos */
+@media (max-width: 768px) {
+  /* Convertir las tablas en bloques apilados */
+  .canonical-metadata table, .canonical-metadata tbody, .canonical-metadata tr, .canonical-metadata td,
+  .metadata table, .metadata tbody, .metadata tr, .metadata td {
+    display: block;
+    width: 100%;
+  }
+  
+  .canonical-metadata tr, .metadata tr {
+    padding: 0.75rem 0;
+  }
+  
+  .canonical-metadata td, .metadata td {
+    padding: 0;
+  }
+
+  .meta-key {
+    width: 100%;
+    margin-bottom: 0.3rem;
+    color: var(--soft-pink); /* Un color un poco más destacado arriba */
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .meta-value {
+    width: 100%;
+    font-size: 0.95rem; /* Un poco más grande para leer mejor */
+  }
+
+  .meta-values-list {
+    gap: 0.4rem;
+  }
+}
 </style>
