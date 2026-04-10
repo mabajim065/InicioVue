@@ -15,9 +15,15 @@
       </div>
 
       <div class="detail-layout">
-        <!-- Contenedor del Media (Imagen) -->
-        <div class="media-container" @click="openFullscreen">
-          <img v-if="mediaUrl" :src="mediaUrl" :alt="getTitle" class="media-img" />
+        <!-- Contenedor del Media (Imagen o PDF) -->
+        <div class="media-container" :class="{'is-pdf': isPdf}">
+          
+          <!-- PDF -->
+          <iframe v-if="isPdf && fileUrl" :src="fileUrl" class="media-pdf" frameborder="0"></iframe>
+          
+          <!-- Imagen -->
+          <img v-else-if="mediaUrl && !isPdf" :src="mediaUrl" :alt="getTitle" class="media-img" @click="openFullscreen" />
+          
           <div v-else class="no-media">
             <svg class="icon-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
@@ -25,9 +31,8 @@
             </svg>
             <p>Formato no soportado para previsualización</p>
           </div>
-          <div v-if="mediaUrl" class="fullscreen-hint">
-            <span>⛶ Ver a pantalla completa</span>
-          </div>
+          
+          <button v-if="mediaUrl || fileUrl" class="btn-expand" @click.stop="openFullscreen" title="Ver a pantalla completa">⛶</button>
         </div>
 
         <!-- Información del Media -->
@@ -39,7 +44,7 @@
           </div>
           
           <div class="actions">
-            <a :href="mediaUrl" target="_blank" download class="btn-download">
+            <a :href="fileUrl || mediaUrl" target="_blank" download class="btn-download">
               Descargar archivo
             </a>
           </div>
@@ -49,7 +54,9 @@
       <!-- Visor a Pantalla Completa (Lightbox) -->
       <div v-if="fullscreenOpen" class="lightbox" @click.self="closeFullscreen">
         <button class="lightbox-close" @click="closeFullscreen">✕</button>
-        <img v-if="mediaUrl" :src="mediaUrl" :alt="getTitle" @click.stop class="lightbox-img" />
+        
+        <iframe v-if="isPdf && fileUrl" :src="fileUrl" class="lightbox-pdf" frameborder="0"></iframe>
+        <img v-else-if="mediaUrl && !isPdf" :src="mediaUrl" :alt="getTitle" @click.stop class="lightbox-img" />
       </div>
     </template>
   </div>
@@ -84,7 +91,6 @@ export default {
       return keys.length ? this.media.description[keys[0]] : null
     },
     mediaUrl() {
-      // Intentamos obtener la ruta directa original o en su defecto un thumbnail grande
       let path = this.media?.path || this.media?.thumbnail?.large || this.media?.thumbnail?.medium || this.media?.thumbnail || null
       if (!path) return null
       if (typeof path === 'object') {
@@ -93,6 +99,19 @@ export default {
       }
       if (!path) return null
       
+      if (path.startsWith('http')) return path
+      return API_BASE + (path.startsWith('/') ? path : '/' + path)
+    },
+    isPdf() {
+      if (this.media?.attachment?.mimetype === 'application/pdf') return true
+      if (this.media?.media_type === 'pdf') return true
+      const url = this.fileUrl || this.mediaUrl || ''
+      if (typeof url === 'string') return url.toLowerCase().includes('.pdf')
+      return false
+    },
+    fileUrl() {
+      let path = this.media?.attachment?.url || this.media?.path || null
+      if (!path) return null
       if (path.startsWith('http')) return path
       return API_BASE + (path.startsWith('/') ? path : '/' + path)
     }
@@ -192,7 +211,6 @@ export default {
   justify-content: center;
   align-items: center;
   position: relative;
-  cursor: zoom-in;
   transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 }
@@ -202,29 +220,46 @@ export default {
   border-color: rgba(255, 77, 141, 0.3);
 }
 
+/* Modificadores según PDF/Imagen */
 .media-img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  background-color: #000; /* Siempre fondo negro tras la imagen para mejor contraste en visualización */
+  background-color: #000; 
+  cursor: zoom-in;
 }
 
-.fullscreen-hint {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 1.5rem 1rem 1rem;
-  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-  color: #fff;
-  text-align: center;
-  font-size: 0.9rem;
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
+.media-pdf {
+  width: 100%;
+  height: 100%;
+  background-color: #fff;
 }
-.media-container:hover .fullscreen-hint {
+
+.btn-expand {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  background: rgba(0,0,0,0.4);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s, background 0.2s, transform 0.2s;
+  z-index: 10;
+}
+.media-container:hover .btn-expand {
   opacity: 1;
+}
+.btn-expand:hover {
+  background: rgba(255,77,141,0.8);
+  transform: scale(1.05);
 }
 
 .no-media {
@@ -304,6 +339,14 @@ export default {
   object-fit: contain;
   cursor: zoom-out;
   user-select: none;
+}
+
+.lightbox-pdf {
+  width: 90vw;
+  height: 90vh;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 
 .lightbox-close {

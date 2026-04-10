@@ -81,7 +81,7 @@ export function getMediaDetail(id) {
   return api.get(`/media/${id}`, {
     params: {
       with_labels: 1,
-      fields: 'id,title,description,path,thumbnail,media_type,metadata,joined_metadata'
+      fields: 'id,title,description,path,thumbnail,media_type,metadata,joined_metadata,attachment'
     }
   })
 }
