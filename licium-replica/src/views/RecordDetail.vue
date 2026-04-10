@@ -128,10 +128,11 @@
             :key="i"
             class="gallery-item"
             :class="{ active: i === lightboxIndex }"
-            @click="openLightbox(i)"
+            @click="img.id ? $router.push(`/media/${img.id}`) : openLightbox(i)"
           >
             <img :src="img.display" :alt="`Imagen ${i + 1}`" />
-          </div>
+            <span v-if="img.isPdf" style="position:absolute; bottom:5px; right:5px; background:red; color:white; font-size:10px; padding:2px 5px; border-radius:3px;">PDF</span>
+</div>
         </div>
       </div>
 
@@ -432,8 +433,13 @@ export default {
           : result.some(r => r.display === displayUrl)
 
         if (!alreadyAdded) {
-          result.push({ display: displayUrl, large: largeUrl || displayUrl })
-        }
+          result.push({ 
+            id: item.id, 
+            display: displayUrl, 
+            large: largeUrl || displayUrl,
+            isPdf: item.media_type === 'pdf' || (item.path && item.path.includes('.pdf')) 
+          })
+}
       }
       return result
     },

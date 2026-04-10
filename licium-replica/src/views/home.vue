@@ -24,8 +24,8 @@
           <router-link to="/collections" class="btn btn-secondary">
             Ver Colecciones
           </router-link>
-          <router-link to="/media/779" class="btn btn-secondary">
-            Test Media 779
+          <router-link to="/media" class="btn btn-secondary">
+            Ver Multimedia
           </router-link>
         </div>
       </div>

@@ -110,11 +110,14 @@ export default {
       return false
     },
     fileUrl() {
-      let path = this.media?.attachment?.url || this.media?.path || null
-      if (!path) return null
-      if (path.startsWith('http')) return path
-      return API_BASE + (path.startsWith('/') ? path : '/' + path)
-    }
+  // Si es un array, cogemos el primer elemento si es objeto, usamos sus propiedades
+  const attach = Array.isArray(this.media?.attachment) ? this.media.attachment[0] : this.media?.attachment;
+  let path = attach?.url || this.media?.path || null;
+  
+  if (!path) return null
+  if (path.startsWith('http')) return path
+  return API_BASE + (path.startsWith('/') ? path : '/' + path)
+}
   },
 
   created() {

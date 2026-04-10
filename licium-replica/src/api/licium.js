@@ -46,6 +46,18 @@ export function getCollections(offset = 0, limit = 24) {
   })
 }
 
+// trae los medias, de 24 en 24
+export function getMedias(offset = 0, limit = 24) {
+  return api.get('/media', {
+    params: {
+      with_labels: 1,
+      fields: 'id,thumbnail,title,path,media_type,description',
+      limit,
+      offset
+    }
+  })
+}
+
 // trae el detalle de una colección concreta
 export function getCollectionDetail(id) {
   return api.get(`/collection/${id}`, {
