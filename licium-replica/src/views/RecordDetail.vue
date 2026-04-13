@@ -658,10 +658,21 @@ export default {
 .gallery-item.active { border-color: var(--primary-pink); }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
 .media-type-chip {
-  position: absolute; top: 10px; right: 10px; background: rgba(220, 38, 38, 0.95);
-  color: white; font-size: 0.75rem; font-weight: bold; padding: 4px 10px;
-  border-radius: 8px; letter-spacing: 0.5px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3); pointer-events: none;
+  position: absolute; 
+  top: 12px; 
+  left: -8px; 
+  background: #E63946;
+  color: white; 
+  font-size: 0.75rem; 
+  font-weight: 800; 
+  padding: 4px 12px;
+  border-radius: 4px; 
+  letter-spacing: 1px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
+  pointer-events: none;
+  transform: rotate(-4deg);
+  z-index: 5;
+  border: 1px solid rgba(255,255,255,0.3);
 }
 .view-media-link {
   font-size: 0.8rem;
@@ -681,10 +692,11 @@ export default {
   text-align: center;
 }
 .main-chip {
-  top: 15px;
-  right: 15px;
-  font-size: 0.9rem;
-  padding: 6px 14px;
+  top: 25px;
+  left: -15px;
+  font-size: 1.2rem;
+  padding: 8px 26px;
+  box-shadow: 0 6px 15px rgba(230, 57, 70, 0.4);
 }
 
 /* Lightbox */
