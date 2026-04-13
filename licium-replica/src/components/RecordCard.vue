@@ -14,6 +14,11 @@
         </svg>
         <span class="text">Sin imagen</span>
       </div>
+      
+      <!-- Pegatina de PDF a la derecha -->
+      <div v-if="hasPdf" class="pdf-sticker-right">
+        PDF
+      </div>
     </div>
     
     <div class="card-info">
@@ -57,6 +62,16 @@ export default {
       if (thumb.startsWith('http')) return thumb
       const path = thumb.startsWith('/') ? thumb : `/${thumb}`
       return `${API_BASE}${path}`
+    },
+
+    hasPdf() {
+      if (this.record.media_type === 'pdf') return true;
+      if (this.record.media_items && Array.isArray(this.record.media_items)) {
+        return this.record.media_items.some(item => 
+          item.media_type === 'pdf' || (item.path && item.path.includes('.pdf'))
+        );
+      }
+      return false;
     },
 
     getTitle() {
@@ -115,6 +130,23 @@ export default {
   background-color: var(--image-placeholder-bg);
   overflow: hidden;
   position: relative;
+}
+
+.pdf-sticker-right {
+  position: absolute;
+  top: 15px;
+  right: -6px;
+  background: #E63946;
+  color: white;
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 6px 16px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+  box-shadow: -2px 4px 10px rgba(230, 57, 70, 0.4), inset 0 0 0 1px rgba(255,255,255,0.2);
+  transform: rotate(4deg);
+  z-index: 10;
+  pointer-events: none;
 }
 
 .card-image img {
