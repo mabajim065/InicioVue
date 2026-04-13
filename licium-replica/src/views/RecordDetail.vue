@@ -14,13 +14,26 @@
 
         <!-- Columna izquierda: imagen principal (oculta en móvil si no hay imagen) -->
         <div class="detail-image" :class="{ 'no-image-col': !mainImageUrl }">
-          <img
-            v-if="mainImageUrl"
-            :src="mainImageUrl"
-            :alt="getTitle"
-            @click="openLightbox(0)"
-            class="main-img"
-          />
+          <template v-if="mainImageUrl">
+            <div style="position: relative; display: inline-block; width: 100%;">
+              <img
+                :src="mainImageUrl"
+                :alt="getTitle"
+                @click="openLightbox(0)"
+                class="main-img"
+              />
+              <span v-if="galleryImages[0] && galleryImages[0].isPdf" class="media-type-chip main-chip">PDF</span>
+            </div>
+            <div class="main-media-link-container">
+              <router-link 
+                v-if="galleryImages[0] && galleryImages[0].id" 
+                :to="`/media/${galleryImages[0].id}`" 
+                class="view-media-link"
+              >
+                {{ galleryImages[0].isPdf ? 'Ver documento PDF' : 'Ver detalles del medio principal' }}
+              </router-link>
+            </div>
+          </template>
           <!-- Sin imagen: solo se muestra en desktop -->
           <div v-else class="no-image">🖼</div>
         </div>
@@ -395,19 +408,26 @@ export default {
     // Galería thumbnail principal + media_items
     galleryImages() {
       const result = []
-      // Extraemos el attachment_id del thumbnail principal para deduplicar
+
+      // 1. Añadimos primero el main image si existe para que siempre sea el index 0
       const mainAttachId = this.mainImageUrl
         ? (this.mainImageUrl.match(/attachment_id=(\d+)/) || [])[1] || null
         : null
 
       if (this.mainImageUrl) {
-        // Usamos size=medium para la imagen principal en la galería
         const mainMedium = mainAttachId
           ? toAbsUrl(`/api/core/attachment/action_get/thumb?attachment_id=${mainAttachId}&size=medium`)
           : this.mainImageUrl
-        result.push({ display: mainMedium, large: mainMedium })
+        result.push({ 
+          display: mainMedium, 
+          large: this.mainImageUrl, // guardamos el grande original
+          isPdf: false, // se actualizará en el loop si está en media_items
+          id: null,
+          attachId: mainAttachId
+        })
       }
 
+      // 2. Procesamos media_items
       const items = this.record?.media_items
       if (!Array.isArray(items)) return result
 
@@ -415,12 +435,10 @@ export default {
         let displayUrl = null, largeUrl = null
 
         if (item.thumbnail && typeof item.thumbnail === 'object') {
-          // thumbnail como objeto con keys de tamaño
           const thumbVal = item.thumbnail.medium || item.thumbnail.large || item.thumbnail.small || null
           largeUrl = toAbsUrl(thumbVal)
           displayUrl = largeUrl
         } else if (typeof item.thumbnail === 'string' && item.thumbnail) {
-          // thumbnail como string: reemplazamos el size por 'medium'
           const base = toAbsUrl(item.thumbnail)
           displayUrl = base ? base.replace(/size=\w+/, 'size=medium') : null
           largeUrl = displayUrl
@@ -433,10 +451,20 @@ export default {
 
         if (!displayUrl) continue
 
-        // Deduplicar por attachment_id para evitar repetir la imagen principal
         const attachId = (displayUrl.match(/attachment_id=(\d+)/) || [])[1] || null
+        const isPdf = item.media_type === 'pdf' || (item.path && item.path.includes('.pdf'))
+
+        // Verificamos si este item es el mismo que el principal
+        if (result.length > 0 && ((attachId && attachId === result[0].attachId) || (!attachId && displayUrl === result[0].display))) {
+          // Actualizamos la información del principal si este media item tiene más datos
+          result[0].id = item.id
+          result[0].isPdf = isPdf
+          continue
+        }
+
+        // Si no es el principal, y no está ya añadido, lo metemos en result
         const alreadyAdded = attachId
-          ? result.some(r => (r.display.match(/attachment_id=(\d+)/) || [])[1] === attachId)
+          ? result.some(r => r.attachId === attachId)
           : result.some(r => r.display === displayUrl)
 
         if (!alreadyAdded) {
@@ -444,9 +472,10 @@ export default {
             id: item.id, 
             display: displayUrl, 
             large: largeUrl || displayUrl,
-            isPdf: item.media_type === 'pdf' || (item.path && item.path.includes('.pdf')) 
+            isPdf: isPdf,
+            attachId: attachId
           })
-}
+        }
       }
       return result
     },
@@ -646,6 +675,16 @@ export default {
 .view-media-link:hover {
   color: var(--soft-pink);
   text-decoration: underline;
+}
+.main-media-link-container {
+  margin-top: 1rem;
+  text-align: center;
+}
+.main-chip {
+  top: 15px;
+  right: 15px;
+  font-size: 0.9rem;
+  padding: 6px 14px;
 }
 
 /* Lightbox */
