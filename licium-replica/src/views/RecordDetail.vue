@@ -126,13 +126,20 @@
           <div
             v-for="(img, i) in galleryImages"
             :key="i"
-            class="gallery-item"
-            :class="{ active: i === lightboxIndex }"
-            @click="img.id ? $router.push(`/media/${img.id}`) : openLightbox(i)"
+            class="gallery-item-wrapper"
           >
-            <img :src="img.display" :alt="`Imagen ${i + 1}`" />
-            <span v-if="img.isPdf" style="position:absolute; bottom:5px; right:5px; background:red; color:white; font-size:10px; padding:2px 5px; border-radius:3px;">PDF</span>
-</div>
+            <div
+              class="gallery-item"
+              :class="{ active: i === lightboxIndex }"
+              @click="openLightbox(i)"
+            >
+              <img :src="img.display" :alt="`Imagen ${i + 1}`" />
+              <span v-if="img.isPdf" class="media-type-chip">PDF</span>
+            </div>
+            <router-link v-if="img.id" :to="`/media/${img.id}`" class="view-media-link">
+              {{ img.isPdf ? 'Ver documento PDF' : 'Ver detalles del medio' }}
+            </router-link>
+          </div>
         </div>
       </div>
 
@@ -606,13 +613,40 @@ export default {
 }
 .gallery-scroll::-webkit-scrollbar { height: 6px; }
 .gallery-scroll::-webkit-scrollbar-thumb { background: rgba(255,77,141,0.4); border-radius: 10px; }
+.gallery-item-wrapper {
+  flex: 0 0 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
 .gallery-item {
-  flex: 0 0 160px; height: 110px; border-radius: 10px; overflow: hidden;
+  width: 100%; height: 110px; border-radius: 10px; overflow: hidden;
+  position: relative;
   cursor: pointer; border: 2px solid transparent; transition: all 0.25s;
 }
 .gallery-item:hover { border-color: rgba(255,133,177,0.5); transform: translateY(-2px); }
 .gallery-item.active { border-color: var(--primary-pink); }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+.media-type-chip {
+  position: absolute; top: 10px; right: 10px; background: rgba(220, 38, 38, 0.95);
+  color: white; font-size: 0.75rem; font-weight: bold; padding: 4px 10px;
+  border-radius: 8px; letter-spacing: 0.5px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3); pointer-events: none;
+}
+.view-media-link {
+  font-size: 0.8rem;
+  color: var(--primary-pink);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  text-align: center;
+  padding: 0.2rem;
+}
+.view-media-link:hover {
+  color: var(--soft-pink);
+  text-decoration: underline;
+}
 
 /* Lightbox */
 .lightbox {
