@@ -1,6 +1,17 @@
 <template>
   <router-link :to="`/records/${record.id}`" class="record-card">
     
+    <!-- SVG PDF Icon Badge -->
+    <div v-if="hasPdf" class="pdf-icon-badge" title="Documento PDF">
+      <svg viewBox="0 0 48 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 0h28l16 16v44c0 2.2-1.8 4-4 4H4c-2.2 0-4-1.8-4-4V4c0-2.2 1.8-4 4-4z" fill="#fff" stroke="#e0e0e0" stroke-width="2"/>
+        <path d="M32 0v16h16L32 0z" fill="#f0f0f0" stroke="#e0e0e0" stroke-width="2" stroke-linejoin="round"/>
+        <rect x="0" y="14" width="34" height="16" fill="#e91e63" />
+        <text x="17" y="26" fill="#fff" font-family="Arial, sans-serif" font-size="11" font-weight="900" text-anchor="middle" letter-spacing="1">PDF</text>
+        <path d="M22 52c-2-5-5-5-6-3c-1 1-1 4 2 2c3-2 5-6 8-8c1-1 3-2 3-1c0 1-2 2-3 4c-2 3-3 6-3 8c0 2 2 3 3 2c1-1 2-2 1-3c-1-2-3-4-5-1z" fill="none" stroke="#e91e63" stroke-width="2.5" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    
     <div class="card-image">
       <img
         v-if="imageUrl && !imageFailed"
@@ -13,11 +24,6 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
         <span class="text">Sin imagen</span>
-      </div>
-      
-      <!-- Pegatina de PDF a la derecha -->
-      <div v-if="hasPdf" class="pdf-sticker-right">
-        PDF
       </div>
     </div>
     
@@ -112,7 +118,8 @@ export default {
   height: 100%;
   background-color: var(--card-bg);
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible; /* Changed to visible to let the icon stick out */
+  position: relative;
   text-decoration: none;
   border: 1px solid var(--border-color);
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
@@ -130,22 +137,18 @@ export default {
   background-color: var(--image-placeholder-bg);
   overflow: hidden;
   position: relative;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 
-.pdf-sticker-right {
+.pdf-icon-badge {
   position: absolute;
-  top: 15px;
-  right: -6px;
-  background: #E63946;
-  color: white;
-  font-weight: 800;
-  font-size: 0.85rem;
-  padding: 6px 16px;
-  border-radius: 4px;
-  letter-spacing: 1px;
-  box-shadow: -2px 4px 10px rgba(230, 57, 70, 0.4), inset 0 0 0 1px rgba(255,255,255,0.2);
-  transform: rotate(4deg);
-  z-index: 10;
+  top: -12px;
+  right: -10px;
+  width: 36px;
+  height: auto;
+  z-index: 20;
+  filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.25));
   pointer-events: none;
 }
 
@@ -198,6 +201,8 @@ export default {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 
 .record-title {
