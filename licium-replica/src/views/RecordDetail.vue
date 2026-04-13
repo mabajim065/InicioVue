@@ -42,14 +42,14 @@
               <span v-if="galleryImages[0] && galleryImages[0].isPdf" class="media-type-chip main-chip">PDF</span>
             </div>
             <div class="main-media-link-container">
-              <router-link 
-                v-if="galleryImages[0] && galleryImages[0].id" 
-                :to="`/media/${galleryImages[0].id}`" 
-                class="view-media-link"
-              >
-                {{ galleryImages[0].isPdf ? 'Ver documento PDF' : 'Ver detalles del medio principal' }}
-              </router-link>
-            </div>
+  <router-link 
+    v-if="galleryImages[0] && galleryImages[0].id" 
+    :to="`/media/${galleryImages[0].id}`" 
+    class="view-media-link"
+  >
+    Ver medio
+  </router-link>
+</div>
           </template>
           <!-- Sin imagen: solo se muestra en desktop -->
           <div v-else class="no-image">🖼</div>
@@ -166,9 +166,9 @@
               <img :src="img.display" :alt="`Imagen ${i + 1}`" />
               <span v-if="img.isPdf" class="media-type-chip">PDF</span>
             </div>
-            <router-link v-if="img.id" :to="`/media/${img.id}`" class="view-media-link">
-              {{ img.isPdf ? 'Ver documento PDF' : 'Ver detalles del medio' }}
-            </router-link>
+           <router-link v-if="img.id" :to="`/media/${img.id}`" class="view-media-link">
+  Ver medio
+</router-link>
           </div>
         </div>
       </div>
