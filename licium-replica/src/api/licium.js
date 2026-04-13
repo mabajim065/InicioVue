@@ -12,7 +12,7 @@ export function getRecords(offset = 0, limit = 24, collectionId = null) {
   const params = {
     with_labels: 1,
     search_all_languages: 1,
-    fields: 'thumbnail,title,author,date,collections.id,collections.title,id',
+    fields: 'thumbnail,title,author,date,collections.id,collections.title,id,media_items.media_type,media_items.path',
     limit,
     offset
   }
@@ -73,7 +73,7 @@ export function searchRecords({ query = '', collectionId = '', offset = 0, limit
   const params = {
     with_labels: 1,
     search_all_languages: 1,
-    fields: 'thumbnail,title,author,date,collections.id,collections.title,id',
+    fields: 'thumbnail,title,author,date,collections.id,collections.title,id,media_items.media_type,media_items.path',
     limit,
     offset
   }

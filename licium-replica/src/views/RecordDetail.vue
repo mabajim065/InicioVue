@@ -422,16 +422,28 @@ export default {
       )
     },
 
-    hasPdf() {
-      if (!this.record?.media_items) return false;
-      return this.record.media_items.some(item => item.media_type === 'pdf' || (item.path && item.path.includes('.pdf')));
-    },
+   hasPdf() {
+  if (!this.record?.media_items) return false;
+  return this.record.media_items.some(item =>
+    item.media_type === 'pdf' ||
+    item.media_type === 'application/pdf' ||
+    (item.path && item.path.toLowerCase().includes('.pdf')) ||
+    (item.file_name && item.file_name.toLowerCase().includes('.pdf')) ||
+    (item.title && item.title.toLowerCase().includes('.pdf'))
+  );
+},
 
-    pdfMediaId() {
-      if (!this.record?.media_items) return null;
-      const pdfItem = this.record.media_items.find(item => item.media_type === 'pdf' || (item.path && item.path.includes('.pdf')));
-      return pdfItem ? pdfItem.id : null;
-    },
+pdfMediaId() {
+  if (!this.record?.media_items) return null;
+  const pdfItem = this.record.media_items.find(item =>
+    item.media_type === 'pdf' ||
+    item.media_type === 'application/pdf' ||
+    (item.path && item.path.toLowerCase().includes('.pdf')) ||
+    (item.file_name && item.file_name.toLowerCase().includes('.pdf')) ||
+    (item.title && item.title.toLowerCase().includes('.pdf'))
+  );
+  return pdfItem ? pdfItem.id : null;
+},
 
     // Galería thumbnail principal + media_items
     galleryImages() {
@@ -524,18 +536,19 @@ export default {
 
   methods: {
     async fetchRecord() {
-      this.loading = true; this.error = null
-      try {
-        const id = this.$route.params.id
-        const response = await getRecordDetail(id)
-        this.record = response.data.data || response.data
-      } catch (err) {
-        console.error('Error cargando record:', err)
-        this.error = 'No se pudo cargar el registro.'
-      } finally {
-        this.loading = false
-      }
-    },
+  this.loading = true; this.error = null
+  try {
+    const id = this.$route.params.id
+    const response = await getRecordDetail(id)
+    this.record = response.data.data || response.data
+    console.log('media_items:', this.record?.media_items)  // ← AÑADE ESTA LÍNEA
+  } catch (err) {
+    console.error('Error cargando record:', err)
+    this.error = 'No se pudo cargar el registro.'
+  } finally {
+    this.loading = false
+  }
+},
 
     openLightbox(index) {
       this.lightboxIndex = index
