@@ -6,11 +6,11 @@
     </div>
     <div v-else-if="error" class="error">
       <p>{{ error }}</p>
-      <button @click="$router.back()" class="btn-back">← Volver</button>
+      <router-link to="/media" class="btn-back">← Volver a multimedia</router-link>
     </div>
     <template v-else-if="media">
       <div class="page-header">
-        <button @click="$router.back()" class="btn-back">← Volver</button>
+        <router-link to="/media" class="btn-back">← Volver a multimedia</router-link>
         <h1>{{ getTitle }}</h1>
       </div>
 
