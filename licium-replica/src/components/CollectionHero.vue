@@ -8,7 +8,7 @@
 </template>
 
 <script>
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://arcadium.cluster24.libnamic.eu'
+import { getTitle, getDescription, getThumbnailUrl } from '../utils/data-utils.js'
 
 export default {
   name: 'CollectionHero',
@@ -20,28 +20,13 @@ export default {
   },
   computed: {
     imageUrl() {
-      let thumb = this.collection?.thumbnail
-      if (!thumb) return null
-      if (typeof thumb === 'object') {
-        const keys = Object.keys(thumb)
-        thumb = keys.length > 0 ? thumb[keys[0]] : null
-      }
-      if (!thumb) return null
-      if (thumb.startsWith('http')) return thumb
-      const path = thumb.startsWith('/') ? thumb : `/${thumb}`
-      return `${API_BASE}${path}`
+      return getThumbnailUrl(this.collection)
     },
     title() {
-      if (!this.collection?.title) return 'Sin título'
-      if (typeof this.collection.title === 'string') return this.collection.title
-      const keys = Object.keys(this.collection.title)
-      return keys.length > 0 ? this.collection.title[keys[0]] : 'Sin título'
+      return getTitle(this.collection)
     },
     description() {
-      if (!this.collection?.description) return ''
-      if (typeof this.collection.description === 'string') return this.collection.description
-      const keys = Object.keys(this.collection.description)
-      return keys.length > 0 ? this.collection.description[keys[0]] : ''
+      return getDescription(this.collection)
     }
   }
 }

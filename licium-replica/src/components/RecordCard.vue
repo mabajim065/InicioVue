@@ -40,7 +40,7 @@
 </template>
 
 <script>
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://arcadium.cluster24.libnamic.eu'
+import { getTitle, getThumbnailUrl, isPdf, extractMultilingual } from '../utils/data-utils.js'
 
 export default {
   props: {
@@ -58,41 +58,22 @@ export default {
 
   computed: {
     imageUrl() {
-      let thumb = this.record.thumbnail
-      if (!thumb) return null
-      if (typeof thumb === 'object') {
-        const keys = Object.keys(thumb)
-        thumb = keys.length > 0 ? thumb[keys[0]] : null
-      }
-      if (!thumb) return null
-      if (thumb.startsWith('http')) return thumb
-      const path = thumb.startsWith('/') ? thumb : `/${thumb}`
-      return `${API_BASE}${path}`
+      return getThumbnailUrl(this.record)
     },
 
     hasPdf() {
-      if (this.record.media_type === 'pdf') return true;
-      if (this.record.media_items && Array.isArray(this.record.media_items)) {
-        return this.record.media_items.some(item => 
-          item.media_type === 'pdf' || (item.path && item.path.includes('.pdf'))
-        );
-      }
-      return false;
+      return isPdf(this.record)
     },
 
     getTitle() {
-      if (!this.record.title) return 'Sin título'
-      if (typeof this.record.title === 'string') return this.record.title
-      const keys = Object.keys(this.record.title)
-      return keys.length > 0 ? this.record.title[keys[0]] : 'Sin título'
+      return getTitle(this.record)
     },
 
     getAuthor() {
       if (!this.record.author) return null
       if (typeof this.record.author === 'string') return this.record.author
       if (Array.isArray(this.record.author)) return this.record.author.join(', ')
-      const keys = Object.keys(this.record.author)
-      return keys.length > 0 ? this.record.author[keys[0]] : null
+      return extractMultilingual(this.record.author, null)
     },
 
     getDate() {

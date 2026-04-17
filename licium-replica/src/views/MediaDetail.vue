@@ -64,8 +64,7 @@
 
 <script>
 import { getMediaDetail } from '../api/licium.js'
-
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://arcadium.cluster24.libnamic.eu'
+import { getTitle, getDescription, toAbsUrl, isPdf, extractMultilingual } from '../utils/data-utils.js'
 
 export default {
   data() {
@@ -79,45 +78,24 @@ export default {
 
   computed: {
     getTitle() {
-      if (!this.media?.title) return 'Archivo Multimedia'
-      if (typeof this.media.title === 'string') return this.media.title
-      const keys = Object.keys(this.media.title)
-      return keys.length ? this.media.title[keys[0]] : 'Archivo Multimedia'
+      return getTitle(this.media)
     },
     getDescription() {
-      if (!this.media?.description) return null
-      if (typeof this.media.description === 'string') return this.media.description
-      const keys = Object.keys(this.media.description)
-      return keys.length ? this.media.description[keys[0]] : null
+      return getDescription(this.media)
     },
     mediaUrl() {
       let path = this.media?.path || this.media?.thumbnail?.large || this.media?.thumbnail?.medium || this.media?.thumbnail || null
-      if (!path) return null
-      if (typeof path === 'object') {
-        const keys = Object.keys(path)
-        path = keys.length ? path[keys[0]] : null
-      }
-      if (!path) return null
-      
-      if (path.startsWith('http')) return path
-      return API_BASE + (path.startsWith('/') ? path : '/' + path)
+      return toAbsUrl(extractMultilingual(path, null))
     },
     isPdf() {
       if (this.media?.attachment?.mimetype === 'application/pdf') return true
-      if (this.media?.media_type === 'pdf') return true
-      const url = this.fileUrl || this.mediaUrl || ''
-      if (typeof url === 'string') return url.toLowerCase().includes('.pdf')
-      return false
+      return isPdf(this.media)
     },
     fileUrl() {
-  // Si es un array, cogemos el primer elemento si es objeto, usamos sus propiedades
-  const attach = Array.isArray(this.media?.attachment) ? this.media.attachment[0] : this.media?.attachment;
-  let path = attach?.url || this.media?.path || null;
-  
-  if (!path) return null
-  if (path.startsWith('http')) return path
-  return API_BASE + (path.startsWith('/') ? path : '/' + path)
-}
+      const attach = Array.isArray(this.media?.attachment) ? this.media.attachment[0] : this.media?.attachment
+      let path = attach?.url || this.media?.path || null
+      return toAbsUrl(path)
+    }
   },
 
   created() {
@@ -148,7 +126,7 @@ export default {
     openFullscreen() {
       if (!this.mediaUrl) return
       this.fullscreenOpen = true
-      document.body.style.overflow = 'hidden' // prevenir scroll de fondo
+      document.body.style.overflow = 'hidden' 
     },
     closeFullscreen() {
       this.fullscreenOpen = false

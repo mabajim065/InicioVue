@@ -15,7 +15,7 @@
       <select v-model="coleccionSeleccionada" class="search-select">
         <option value="">Todas las colecciones</option>
         <option v-for="col in colecciones" :key="col.id" :value="col.id">
-          {{ getColTitle(col) }}
+          {{ getTitle(col) }}
         </option>
       </select>
       <button class="btn-buscar" @click="buscar">Buscar →</button>
@@ -45,6 +45,7 @@
 import { searchRecords, getCollections } from '../api/licium.js'
 import RecordCard from '../components/RecordCard.vue'
 import Pagination from '../components/Pagination.vue'
+import { getTitle } from '../utils/data-utils.js'
 
 export default {
   components: { RecordCard, Pagination },
@@ -65,7 +66,6 @@ export default {
     totalPages() { return Math.ceil(this.totalResultados / this.limit) || 1 }
   },
   created() {
-    // Restaurar estado desde URL al volver desde un record
     const r = this.$route.query
     if (r.q) this.query = r.q
     if (r.col) this.coleccionSeleccionada = r.col
@@ -73,13 +73,13 @@ export default {
 
     this.cargarColecciones()
 
-    // Si había búsqueda en la URL, relanzarla automáticamente
     if (this.query || this.coleccionSeleccionada) {
       this.buscado = true
       this.fetchResultados()
     }
   },
   methods: {
+    getTitle,
     async cargarColecciones() {
       try {
         const response = await getCollections(0, 100)
@@ -96,7 +96,6 @@ export default {
       this.$router.replace({ query: q }).catch(() => {})
     },
     buscar() {
-      // No buscar si no hay ningún filtro activo
       if (!this.query.trim() && !this.coleccionSeleccionada) return
       this.currentPage = 1
       this.updateUrl()
@@ -107,7 +106,6 @@ export default {
       this.buscado = true
       try {
         const offset = (this.currentPage - 1) * this.limit
-        // query y collectionId van SIEMPRE dentro del domain — nunca como &search=
         const response = await searchRecords({
           query: this.query,
           collectionId: this.coleccionSeleccionada,
@@ -130,12 +128,6 @@ export default {
       this.updateUrl()
       this.fetchResultados()
       window.scrollTo({ top: 0, behavior: 'smooth' })
-    },
-    getColTitle(col) {
-      if (!col.title) return 'Sin título'
-      if (typeof col.title === 'string') return col.title
-      const keys = Object.keys(col.title)
-      return keys.length > 0 ? col.title[keys[0]] : 'Sin título'
     }
   }
 }
