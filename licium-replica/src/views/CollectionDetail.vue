@@ -1,15 +1,11 @@
 <template>
   <div class="collection-detail">
-    <div v-if="loading" class="loading">
-      <div class="spinner"></div>
-      <p>Cargando colección...</p>
-    </div>
-    <div v-else-if="error" class="error">
-      <p>{{ error }}</p>
-      <router-link to="/collections" class="back-btn">← Volver a colecciones</router-link>
-    </div>
+    <LoadingState v-if="loading" message="Cargando colección..." />
+
+    <ErrorState v-else-if="error" :message="error" />
+
     <template v-else-if="collection">
-      <router-link to="/collections" class="back-btn">← Volver a colecciones</router-link>
+      <button @click="$router.back()" class="back-btn">← Volver atrás</button>
       
       <CollectionHero :collection="collection" />
       
@@ -31,12 +27,16 @@ import { getCollectionDetail, getRecords } from '../api/licium.js'
 import CollectionHero from '../components/CollectionHero.vue'
 import CollectionMetadata from '../components/CollectionMetadata.vue'
 import CollectionRecordsSection from '../components/CollectionRecordsSection.vue'
+import LoadingState from '../components/LoadingState.vue'
+import ErrorState   from '../components/ErrorState.vue'
 
 export default {
   components: { 
     CollectionHero, 
     CollectionMetadata, 
-    CollectionRecordsSection 
+    CollectionRecordsSection,
+    LoadingState,
+    ErrorState
   },
   data() {
     return { 
@@ -84,11 +84,12 @@ export default {
 </script>
 
 <style scoped>
-.back-btn { display: inline-block; color: var(--soft-pink); text-decoration: none; margin-bottom: 1.5rem; font-size: 0.9rem; transition: color 0.3s; }
+.back-btn { 
+  display: inline-block; color: var(--soft-pink); 
+  text-decoration: none; margin-bottom: 1.5rem; 
+  font-size: 0.9rem; transition: color 0.3s;
+  background: transparent; border: none; cursor: pointer; padding: 0;
+}
 .back-btn:hover { color: var(--primary-pink); }
-
-.loading { text-align: center; padding: 3rem 0; color: var(--loading-text); }
-.spinner { width: 40px; height: 40px; border: 3px solid var(--spinner-track); border-top-color: #ff4d8d; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.error { text-align: center; padding: 3rem; color: var(--primary-pink); }
-</style>
+</style>
+

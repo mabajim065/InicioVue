@@ -21,10 +21,8 @@
       <button class="btn-buscar" @click="buscar">Buscar →</button>
     </div>
 
-    <div v-if="loading" class="loading">
-      <div class="spinner"></div>
-      <p>Buscando...</p>
-    </div>
+    <LoadingState v-if="loading" message="Buscando resultados..." />
+    
     <div v-else-if="buscado && resultados.length === 0" class="empty">
       <p>No se encontraron resultados</p>
     </div>
@@ -45,10 +43,11 @@
 import { searchRecords, getCollections } from '../api/licium.js'
 import RecordCard from '../components/RecordCard.vue'
 import Pagination from '../components/Pagination.vue'
+import LoadingState from '../components/LoadingState.vue'
 import { getTitle } from '../utils/data-utils.js'
 
 export default {
-  components: { RecordCard, Pagination },
+  components: { RecordCard, Pagination, LoadingState },
   data() {
     return {
       query: '',
@@ -209,10 +208,6 @@ export default {
   border-bottom: 1px solid var(--border-color);
 }
 .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
-
-.loading { text-align: center; padding: 4rem 0; color: var(--loading-text); }
-.spinner { width: 40px; height: 40px; border: 3px solid var(--spinner-track); border-top-color: var(--primary-pink); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
-@keyframes spin { to { transform: rotate(360deg); } }
 
 .empty, .initial { text-align: center; padding: 4rem 0; color: var(--text-faint); font-size: 1.1rem; }
 

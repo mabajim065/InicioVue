@@ -1,15 +1,9 @@
 <template>
   <div class="record-detail">
 
-    <div v-if="loading" class="loading">
-      <div class="spinner"></div>
-      <p>Cargando detalle...</p>
-    </div>
+    <LoadingState v-if="loading" message="Cargando detalle..." />
 
-    <div v-else-if="error" class="error">
-      <p>{{ error }}</p>
-      <button @click="$router.back()" class="back-btn">← Volver</button>
-    </div>
+    <ErrorState v-else-if="error" :message="error" />
 
     <template v-else-if="record">
       <button @click="$router.back()" class="back-btn">← Volver</button>
@@ -47,6 +41,8 @@ import { getRecordDetail } from '../api/licium.js'
 import PdfNoticeBanner from '../components/PdfNoticeBanner.vue'
 import RecordGallery   from '../components/RecordGallery.vue'
 import RecordMetadata  from '../components/RecordMetadata.vue'
+import LoadingState    from '../components/LoadingState.vue'
+import ErrorState      from '../components/ErrorState.vue'
 import { 
   getTitle, 
   getDescription, 
@@ -57,7 +53,13 @@ import {
 import { toAbsUrl, getResizedUrl, isPdf, getAttachmentId } from '../utils/image.js'
 
 export default {
-  components: { PdfNoticeBanner, RecordGallery, RecordMetadata },
+  components: { 
+    PdfNoticeBanner, 
+    RecordGallery, 
+    RecordMetadata, 
+    LoadingState, 
+    ErrorState 
+  },
 
   data() {
     return {
@@ -103,7 +105,6 @@ export default {
       const mainAttachId = getAttachmentId(mainImageUrl)
 
       if (mainImageUrl) {
-        // Para la principal usamos 'large' tanto en display como en large (lightbox)
         result.push({ 
           display: mainImageUrl, 
           large: getResizedUrl(mainImageUrl, 'original'), 
@@ -119,7 +120,6 @@ export default {
       for (const item of items) {
         let displayUrl = null, largeUrl = null
 
-        // Obtenemos la URL de la miniatura buscando el mejor tamaño disponible
         const thumb = item.thumbnail
         if (thumb) {
           const rawUrl = toAbsUrl(typeof thumb === 'object' ? (thumb.large || thumb.medium || thumb.small || Object.values(thumb)[0]) : thumb)
@@ -137,7 +137,6 @@ export default {
         const attachId = getAttachmentId(displayUrl)
         const itemIsPdf = isPdf(item)
 
-        // Si coincide con la imagen principal, completamos sus datos
         if (result.length > 0 && ((attachId && attachId === result[0].attachId) || (!attachId && displayUrl === result[0].display))) {
           result[0].id = item.id
           result[0].isPdf = itemIsPdf
@@ -208,7 +207,6 @@ export default {
 }
 .back-btn:hover { color: var(--primary-pink); transform: none; box-shadow: none; }
 
-/* Layout de dos columnas */
 .detail-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -227,14 +225,4 @@ export default {
   margin-bottom: 1.5rem;
   line-height: 1.3;
 }
-
-/* Loading / error */
-.loading { text-align: center; padding: 4rem 0; color: var(--loading-text); }
-.spinner {
-  width: 40px; height: 40px; border: 3px solid var(--spinner-track);
-  border-top-color: #ff4d8d; border-radius: 50%;
-  animation: spin 0.8s linear infinite; margin: 0 auto 1rem;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.error { text-align: center; padding: 3rem; color: var(--primary-pink); }
-</style>
+</style>
