@@ -56,7 +56,7 @@
         <button class="lightbox-close" @click="closeFullscreen">✕</button>
         
         <iframe v-if="isPdf && fileUrl" :src="fileUrl" class="lightbox-pdf" frameborder="0"></iframe>
-        <img v-else-if="mediaUrl && !isPdf" :src="mediaUrl" :alt="getTitle" @click.stop class="lightbox-img" />
+        <img v-else-if="lightboxUrl && !isPdf" :src="lightboxUrl" :alt="getTitle" @click.stop class="lightbox-img" />
       </div>
     </template>
   </div>
@@ -64,7 +64,8 @@
 
 <script>
 import { getMediaDetail } from '../api/licium.js'
-import { getTitle, getDescription, toAbsUrl, isPdf, extractMultilingual } from '../utils/data-utils.js'
+import { getTitle, getDescription, extractMultilingual } from '../utils/data-utils.js'
+import { toAbsUrl, getResizedUrl, isPdf } from '../utils/image.js'
 
 export default {
   data() {
@@ -84,8 +85,14 @@ export default {
       return getDescription(this.media)
     },
     mediaUrl() {
-      let path = this.media?.path || this.media?.thumbnail?.large || this.media?.thumbnail?.medium || this.media?.thumbnail || null
-      return toAbsUrl(extractMultilingual(path, null))
+      const path = this.media?.path || this.media?.thumbnail?.large || this.media?.thumbnail?.medium || this.media?.thumbnail || null
+      const url = toAbsUrl(extractMultilingual(path, null))
+      return getResizedUrl(url, 'large')
+    },
+    lightboxUrl() {
+      const path = this.media?.path || this.media?.thumbnail?.original || this.media?.thumbnail?.large || this.media?.thumbnail || null
+      const url = toAbsUrl(extractMultilingual(path, null))
+      return getResizedUrl(url, 'original')
     },
     isPdf() {
       if (this.media?.attachment?.mimetype === 'application/pdf') return true

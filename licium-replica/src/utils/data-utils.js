@@ -1,15 +1,3 @@
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://arcadium.cluster24.libnamic.eu'
-
-/**
- * Convierte una URL relativa en absoluta usando el API_BASE
- */
-export function toAbsUrl(url) {
-  if (!url) return null
-  if (url.startsWith('http')) return url
-  const path = url.startsWith('/') ? url : '/' + url
-  return `${API_BASE}${path}`
-}
-
 /**
  * Extrae texto de un campo multilingüe (objeto con claves de idioma)
  * o devuelve el string si ya lo es.
@@ -36,49 +24,6 @@ export function getTitle(item) {
  */
 export function getDescription(item) {
   return extractMultilingual(item?.description, '')
-}
-
-/**
- * Obtiene la URL del thumbnail de un objeto
- */
-export function getThumbnailUrl(item) {
-  let thumb = item?.thumbnail
-  if (!thumb) return null
-  
-  if (typeof thumb === 'object') {
-    // Si es un objeto de thumbnails (varios tamaños), buscamos uno
-    const thumbVal = thumb.medium || thumb.large || thumb.small || Object.values(thumb)[0] || null
-    return toAbsUrl(thumbVal)
-  }
-  
-  return toAbsUrl(thumb)
-}
-
-/**
- * Detecta si un item (media o record con media_items) contiene un PDF
- */
-export function isPdf(item) {
-  if (!item) return false
-  
-  // Si es un item de media directamente
-  const checkMedia = (m) => {
-    return (
-      m.media_type === 'pdf' ||
-      m.media_type === 'application/pdf' ||
-      (m.path && m.path.toLowerCase().includes('.pdf')) ||
-      (m.file_name && m.file_name.toLowerCase().includes('.pdf')) ||
-      (m.title && typeof m.title === 'string' && m.title.toLowerCase().includes('.pdf'))
-    )
-  }
-
-  if (checkMedia(item)) return true
-
-  // Si es un record con media_items
-  if (Array.isArray(item.media_items)) {
-    return item.media_items.some(checkMedia)
-  }
-
-  return false
 }
 
 // ─── Metadatos ───────────────────────────────────────────────────────────────

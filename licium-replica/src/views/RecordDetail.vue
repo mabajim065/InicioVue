@@ -50,12 +50,11 @@ import RecordMetadata  from '../components/RecordMetadata.vue'
 import { 
   getTitle, 
   getDescription, 
-  toAbsUrl, 
-  isPdf, 
   parseJoinedField, 
   applyFieldsOrder,
   extractMultilingual
 } from '../utils/data-utils.js'
+import { toAbsUrl, getResizedUrl, isPdf, getAttachmentId } from '../utils/image.js'
 
 export default {
   components: { PdfNoticeBanner, RecordGallery, RecordMetadata },
@@ -94,21 +93,24 @@ export default {
     },
 
     mainImageUrl() {
-      return toAbsUrl(extractMultilingual(this.record?.thumbnail, null))
+      const url = toAbsUrl(extractMultilingual(this.record?.thumbnail, null))
+      return getResizedUrl(url, 'large')
     },
 
     galleryImages() {
       const result = []
       const mainImageUrl = this.mainImageUrl
-      const mainAttachId = mainImageUrl
-        ? (mainImageUrl.match(/attachment_id=(\d+)/) || [])[1] || null
-        : null
+      const mainAttachId = getAttachmentId(mainImageUrl)
 
       if (mainImageUrl) {
-        const mainMedium = mainAttachId
-          ? toAbsUrl(`/api/core/attachment/action_get/thumb?attachment_id=${mainAttachId}&size=medium`)
-          : mainImageUrl
-        result.push({ display: mainMedium, large: mainImageUrl, isPdf: false, id: null, attachId: mainAttachId })
+        // Para la principal usamos 'large' tanto en display como en large (lightbox)
+        result.push({ 
+          display: mainImageUrl, 
+          large: getResizedUrl(mainImageUrl, 'original'), 
+          isPdf: false, 
+          id: null, 
+          attachId: mainAttachId 
+        })
       }
 
       const items = this.record?.media_items
@@ -117,17 +119,12 @@ export default {
       for (const item of items) {
         let displayUrl = null, largeUrl = null
 
-        if (item.thumbnail && typeof item.thumbnail === 'object') {
-          const thumbVal = item.thumbnail.medium || item.thumbnail.large || item.thumbnail.small || null
-          if (thumbVal) {
-            const medium = toAbsUrl(thumbVal.replace ? thumbVal.replace(/size=\w+/, 'size=medium') : thumbVal)
-            largeUrl  = toAbsUrl(thumbVal)
-            displayUrl = medium || largeUrl
-          }
-        } else if (typeof item.thumbnail === 'string' && item.thumbnail) {
-          const base = toAbsUrl(item.thumbnail)
-          displayUrl = base ? base.replace(/size=\w+/, 'size=medium') : null
-          largeUrl = displayUrl
+        // Obtenemos la URL de la miniatura buscando el mejor tamaño disponible
+        const thumb = item.thumbnail
+        if (thumb) {
+          const rawUrl = toAbsUrl(typeof thumb === 'object' ? (thumb.large || thumb.medium || thumb.small || Object.values(thumb)[0]) : thumb)
+          displayUrl = getResizedUrl(rawUrl, 'large')
+          largeUrl = getResizedUrl(rawUrl, 'original')
         }
 
         if (!displayUrl && item.path) {
@@ -137,7 +134,7 @@ export default {
 
         if (!displayUrl) continue
 
-        const attachId = (displayUrl.match(/attachment_id=(\d+)/) || [])[1] || null
+        const attachId = getAttachmentId(displayUrl)
         const itemIsPdf = isPdf(item)
 
         // Si coincide con la imagen principal, completamos sus datos

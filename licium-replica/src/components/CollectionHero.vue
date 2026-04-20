@@ -8,7 +8,8 @@
 </template>
 
 <script>
-import { getTitle, getDescription, getThumbnailUrl } from '../utils/data-utils.js'
+import { getTitle, getDescription } from '../utils/data-utils.js'
+import { getThumbnailUrl } from '../utils/image.js'
 
 export default {
   name: 'CollectionHero',

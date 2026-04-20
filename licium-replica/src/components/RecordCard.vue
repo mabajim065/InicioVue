@@ -40,7 +40,8 @@
 </template>
 
 <script>
-import { getTitle, getThumbnailUrl, isPdf, extractMultilingual } from '../utils/data-utils.js'
+import { getTitle, extractMultilingual } from '../utils/data-utils.js'
+import { getThumbnailUrl, isPdf } from '../utils/image.js'
 
 export default {
   props: {

@@ -29,7 +29,8 @@
 </template>
 
 <script>
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://arcadium.cluster24.libnamic.eu'
+import { getTitle, getDescription } from '../utils/data-utils.js'
+import { getThumbnailUrl } from '../utils/image.js'
 
 export default {
   props: {
@@ -47,32 +48,15 @@ export default {
 
   computed: {
     imageUrl() {
-      let thumb = this.media.thumbnail
-      if (!thumb) return null
-      if (typeof thumb === 'object') {
-        const keys = Object.keys(thumb)
-        thumb = keys.length > 0 ? thumb[keys[0]] : null
-      }
-      if (!thumb) return null
-      // Use medium size
-      thumb = thumb.replace(/size=\w+/, 'size=medium')
-      if (thumb.startsWith('http')) return thumb
-      const path = thumb.startsWith('/') ? thumb : `/${thumb}`
-      return `${API_BASE}${path}`
+      return getThumbnailUrl(this.media, 'medium')
     },
 
     getTitle() {
-      if (!this.media.title) return 'Sin título'
-      if (typeof this.media.title === 'string') return this.media.title
-      const keys = Object.keys(this.media.title)
-      return keys.length > 0 ? this.media.title[keys[0]] : 'Sin título'
+      return getTitle(this.media)
     },
 
     getDescription() {
-      if (!this.media.description) return null
-      if (typeof this.media.description === 'string') return this.media.description
-      const keys = Object.keys(this.media.description)
-      return keys.length > 0 ? this.media.description[keys[0]] : null
+      return getDescription(this.media)
     },
 
     getType() {
