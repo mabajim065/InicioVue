@@ -11,17 +11,25 @@ export function toAbsUrl(url) {
 }
 
 /**
- * Cambia el parámetro 'size' de una URL de la API por otro (ej: small -> large)
+ * Cambia el parámetro de tamaño ('size' o 's') de una URL de la API por otro
  */
 export function getResizedUrl(url, size = 'large') {
   if (!url) return null
   if (typeof url !== 'string') return url
-  if (url.includes('size=')) {
-    return url.replace(/size=[a-zA-Z0-9_-]+/, `size=${size}`)
+  
+  // Manejar tanto 'size=' como 's=' que se usan en diferentes versiones de la API
+  const sizePattern = /(size|s)=([a-zA-Z0-9_-]+)/
+  
+  if (sizePattern.test(url)) {
+    return url.replace(sizePattern, `$1=${size}`)
   }
-  if (url.includes('/thumb?') && !url.includes('size=')) {
-    return `${url}&size=${size}`
+  
+  // Si es una URL de thumnbail pero no tiene parámetro de tamaño, se lo añadimos
+  if (url.includes('/thumb?') || url.includes('/thumbnail?')) {
+    const separator = url.includes('?') ? '&' : '?'
+    return `${url}${separator}size=${size}`
   }
+  
   return url
 }
 
@@ -31,15 +39,32 @@ export function getResizedUrl(url, size = 'large') {
  * @param {String} size - Tamaño deseado (small, medium, large, original)
  */
 export function getThumbnailUrl(item, size = 'medium') {
-  const thumb = item?.thumbnail || item
-  if (!thumb) return null
+  if (!item) return null
   
-  let thumbVal = ''
-  if (typeof thumb === 'object') {
-    thumbVal = thumb[size] || thumb.large || thumb.medium || thumb.small || Object.values(thumb)[0] || null
-  } else {
-    thumbVal = thumb
+  let thumbVal = null
+  
+  // 1. Caso: item.thumbnail existe (puede ser objeto o string)
+  if (item.thumbnail) {
+    const t = item.thumbnail
+    if (typeof t === 'object') {
+      // Prioridad: el tamaño pedido -> large -> medium -> small -> cualquier string
+      thumbVal = t[size] || t.large || t.medium || t.small || Object.values(t).find(v => typeof v === 'string')
+    } else {
+      thumbVal = t
+    }
   }
+  
+  // 2. Caso: no hay thumbnail pero hay path (en medios)
+  if (!thumbVal && item.path) {
+    thumbVal = item.path
+  }
+  
+  // 3. Caso: el item mismo es un string
+  if (!thumbVal && typeof item === 'string') {
+    thumbVal = item
+  }
+
+  if (!thumbVal) return null
   
   const absUrl = toAbsUrl(thumbVal)
   return getResizedUrl(absUrl, size)

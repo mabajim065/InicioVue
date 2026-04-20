@@ -10,6 +10,9 @@
         Descargar archivo
       </a>
     </div>
+
+    <!-- Reusable slot for extra content like metadata -->
+    <slot name="after-info"></slot>
   </div>
 </template>
 

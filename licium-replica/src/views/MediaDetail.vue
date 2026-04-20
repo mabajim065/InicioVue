@@ -22,7 +22,13 @@
         <MediaInfo
           :description="getDescription"
           :download-url="fileUrl || mediaUrl"
-        />
+        >
+          <template #after-info>
+            <div class="metadata-section" v-if="canonicalRows.length">
+              <RecordMetadata :canonical-rows="canonicalRows" />
+            </div>
+          </template>
+        </MediaInfo>
       </div>
 
       <!-- Visor a Pantalla Completa (Lightbox) -->
@@ -37,19 +43,21 @@
 
 <script>
 import { getMediaDetail } from '../api/licium.js'
-import { getTitle, getDescription, extractMultilingual } from '../utils/data-utils.js'
-import { toAbsUrl, getResizedUrl, isPdf } from '../utils/image.js'
+import { getTitle, getDescription, extractMultilingual, parseJoinedField, applyFieldsOrder } from '../utils/data-utils.js'
+import { toAbsUrl, getResizedUrl, getThumbnailUrl, isPdf } from '../utils/image.js'
 import LoadingState from '../components/LoadingState.vue'
 import ErrorState   from '../components/ErrorState.vue'
 import MediaPreview from '../components/MediaPreview.vue'
 import MediaInfo    from '../components/MediaInfo.vue'
+import RecordMetadata from '../components/RecordMetadata.vue'
 
 export default {
   components: {
     LoadingState,
     ErrorState,
     MediaPreview,
-    MediaInfo
+    MediaInfo,
+    RecordMetadata
   },
   data() {
     return {
@@ -68,14 +76,11 @@ export default {
       return getDescription(this.media)
     },
     mediaUrl() {
-      const path = this.media?.path || this.media?.thumbnail?.large || this.media?.thumbnail?.medium || this.media?.thumbnail || null
-      const url = toAbsUrl(extractMultilingual(path, null))
-      return getResizedUrl(url, 'large')
+      return getThumbnailUrl(this.media, 'large')
     },
     lightboxUrl() {
-      const path = this.media?.path || this.media?.thumbnail?.original || this.media?.thumbnail?.large || this.media?.thumbnail || null
-      const url = toAbsUrl(extractMultilingual(path, null))
-      return getResizedUrl(url, 'original')
+      // Intentamos original, si no large
+      return getThumbnailUrl(this.media, 'original') || getThumbnailUrl(this.media, 'large')
     },
     isPdf() {
       if (this.media?.attachment?.mimetype === 'application/pdf') return true
@@ -85,7 +90,16 @@ export default {
       const attach = Array.isArray(this.media?.attachment) ? this.media.attachment[0] : this.media?.attachment
       let path = attach?.url || this.media?.path || null
       return toAbsUrl(path)
-    }
+    },
+    canonicalRows() {
+      const meta = this.media?.canonical_joined_metadata
+      if (!meta || typeof meta !== 'object') return []
+      return applyFieldsOrder(
+        Object.entries(meta)
+          .map(([key, fd]) => parseJoinedField(fd?.term || key, fd))
+          .filter(r => r.values.length)
+      )
+    },
   },
 
   created() {

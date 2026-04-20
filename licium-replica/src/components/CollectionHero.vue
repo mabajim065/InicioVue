@@ -21,7 +21,7 @@ export default {
   },
   computed: {
     imageUrl() {
-      return getThumbnailUrl(this.collection)
+      return getThumbnailUrl(this.collection, 'large')
     },
     title() {
       return getTitle(this.collection)

@@ -95,8 +95,7 @@ export default {
     },
 
     mainImageUrl() {
-      const url = toAbsUrl(extractMultilingual(this.record?.thumbnail, null))
-      return getResizedUrl(url, 'large')
+      return getThumbnailUrl(this.record, 'large')
     },
 
     galleryImages() {
@@ -106,7 +105,7 @@ export default {
 
       if (mainImageUrl) {
         result.push({ 
-          display: mainImageUrl, 
+          display: mainImageUrl, // Ya está en large por getThumbnailUrl
           large: getResizedUrl(mainImageUrl, 'original'), 
           isPdf: false, 
           id: null, 
@@ -118,14 +117,8 @@ export default {
       if (!Array.isArray(items)) return result
 
       for (const item of items) {
-        let displayUrl = null, largeUrl = null
-
-        const thumb = item.thumbnail
-        if (thumb) {
-          const rawUrl = toAbsUrl(typeof thumb === 'object' ? (thumb.large || thumb.medium || thumb.small || Object.values(thumb)[0]) : thumb)
-          displayUrl = getResizedUrl(rawUrl, 'large')
-          largeUrl = getResizedUrl(rawUrl, 'original')
-        }
+        let displayUrl = getThumbnailUrl(item, 'large')
+        let largeUrl = getResizedUrl(displayUrl, 'original')
 
         if (!displayUrl && item.path) {
           displayUrl = toAbsUrl(item.path)
