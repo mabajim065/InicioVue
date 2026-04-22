@@ -193,12 +193,14 @@ export default {
 
 <style scoped>
 .back-btn {
-  display: inline-block; color: var(--soft-pink); text-decoration: none;
-  margin-bottom: 1.5rem; font-size: 0.9rem; transition: color 0.3s;
-  background: transparent; border: none; cursor: pointer; padding: 0;
-  font-weight: 500; box-shadow: none;
+  display: inline-block; color: var(--gold-medium); text-decoration: none;
+  margin-bottom: 1.5rem; font-size: 0.9rem; transition: all 0.3s;
+  background: transparent; border: none; cursor: pointer; padding: 0.5rem 1rem;
+  font-weight: 600; box-shadow: none;
+  border: 1px solid var(--gold-light);
+  border-radius: 50px;
 }
-.back-btn:hover { color: var(--primary-pink); transform: none; box-shadow: none; }
+.back-btn:hover { color: var(--gold-dark); border-color: var(--gold-dark); background: var(--gold-soft); }
 
 .detail-layout {
   display: grid;
@@ -213,9 +215,11 @@ export default {
 }
 
 .detail-info h1 {
-  font-size: 1.8rem;
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-family: var(--font-serif);
   color: var(--text-main);
   margin-bottom: 1.5rem;
-  line-height: 1.3;
+  line-height: 1.2;
+  font-weight: 700;
 }
 </style>

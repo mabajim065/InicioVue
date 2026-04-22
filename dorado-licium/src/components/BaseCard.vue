@@ -69,24 +69,24 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-color: var(--card-bg);
+  background-color: white;
   border-radius: 12px;
   overflow: hidden;
   text-decoration: none;
-  border: 1px solid var(--border-color);
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  border: 1px solid var(--gold-light);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
 
 .base-card.has-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(255, 77, 141, 0.15);
-  border-color: rgba(255, 77, 141, 0.3);
+  box-shadow: 0 12px 30px rgba(185, 158, 124, 0.2);
+  border-color: var(--gold-medium);
 }
 
 .card-image-wrapper {
   width: 100%;
-  background-color: var(--image-placeholder-bg);
+  background-color: var(--gold-soft);
   overflow: hidden;
   position: relative;
   display: flex;
@@ -114,7 +114,7 @@ export default {
   align-items: center;
   justify-content: center;
   gap: 0.8rem;
-  color: var(--text-muted);
+  color: var(--gold-medium);
   text-align: center;
   padding: 1rem;
 }
@@ -122,21 +122,22 @@ export default {
 .icon-svg {
   width: 48px;
   height: 48px;
-  stroke: var(--soft-pink);
+  stroke: var(--gold-medium);
   opacity: 0.4;
-  transition: stroke 0.3s ease, opacity 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .no-image-text {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+  color: var(--gold-dark);
 }
 
 .base-card.has-hover:hover .icon-svg {
-  stroke: var(--primary-pink);
-  opacity: 0.8;
+  stroke: var(--gold-dark);
+  opacity: 1;
 }
 
 .card-content {
@@ -147,6 +148,7 @@ export default {
 }
 
 .card-title {
+  font-family: var(--font-serif);
   font-size: 1.1rem;
   color: var(--text-main);
   margin-top: 0;
@@ -154,8 +156,8 @@ export default {
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  font-weight: 600;
 }
 </style>
