@@ -50,11 +50,51 @@ export default {
 </script>
 
 <style scoped>
-.records-section h2 { font-size: 1.3rem; color: var(--text-main); margin-bottom: 1.5rem; }
-.records-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+.records-section {
+  padding-top: 3rem;
+  border-top: 1px solid var(--gold-light);
+}
+.records-section h2 { 
+  font-size: 1.8rem; 
+  font-family: var(--font-serif);
+  color: var(--gold-dark); 
+  margin-bottom: 2.5rem; 
+  text-align: center;
+}
+.records-grid { 
+  display: grid; 
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+  gap: 2.5rem; 
+  margin-bottom: 4rem; 
+}
 
-.empty { text-align: center; padding: 3rem; color: var(--empty-color); font-style: italic; }
-.loading { text-align: center; padding: 3rem 0; color: var(--loading-text); }
-.spinner { width: 40px; height: 40px; border: 3px solid var(--spinner-track); border-top-color: #ff4d8d; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
-@keyframes spin { to { transform: rotate(360deg); } }
+.empty { 
+  text-align: center; 
+  padding: 4rem; 
+  color: var(--text-muted); 
+  background: white;
+  border-radius: 16px;
+  border: 1px dashed var(--gold-light);
+}
+.loading { 
+  text-align: center; 
+  padding: 5rem 0; 
+  color: var(--text-muted); 
+}
+.spinner { 
+  width: 50px; 
+  height: 50px; 
+  border: 2px solid var(--gold-light); 
+  border-top-color: var(--gold-dark); 
+  border-radius: 50%; 
+  animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+  margin: 0 auto 1.5rem; 
+}
+@keyframes spin { 
+  to { transform: rotate(360deg); } 
+}
+
+@media (max-width: 600px) {
+  .records-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1.5rem; }
+}
 </style>

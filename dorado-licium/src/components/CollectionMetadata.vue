@@ -49,24 +49,55 @@ export default {
 </script>
 
 <style scoped>
-.metadata { margin-bottom: 2.5rem; }
-.metadata-toggle {
-  background: var(--glass-pink);
-  border: 1px solid rgba(255,133,177,0.2);
-  color: var(--primary-pink);
-  padding: 0.5rem 1.2rem;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-  transition: all 0.3s;
-  box-shadow: none;
+.metadata { 
+  margin-bottom: 3rem; 
 }
-.metadata-toggle:hover { background: rgba(255,77,141,0.15); transform: none; box-shadow: none; }
-.metadata table { width: 100%; border-collapse: collapse; }
-.metadata tr { border-bottom: 1px solid var(--meta-row-border); }
-.metadata td { padding: 0.7rem 0; vertical-align: top; }
-.meta-key { color: var(--meta-key-color); font-size: 0.85rem; width: 35%; font-weight: 500; }
-.meta-value { color: var(--meta-value-color); font-size: 0.85rem; }
+.metadata-toggle {
+  background: var(--gold-soft);
+  border: 1px solid var(--gold-light);
+  color: var(--gold-dark);
+  padding: 0.8rem 1.8rem;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+.metadata-toggle:hover { 
+  background: var(--gold-medium); 
+  color: white;
+  border-color: var(--gold-dark);
+}
+.metadata table { 
+  width: 100%; 
+  border-collapse: collapse;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid rgba(185, 158, 124, 0.2);
+}
+.metadata tr { border-bottom: 1px solid rgba(185, 158, 124, 0.1); }
+.metadata tr:last-child { border-bottom: none; }
+.metadata td { padding: 1rem; vertical-align: top; }
+.meta-key { 
+  color: var(--gold-dark); 
+  font-size: 0.75rem; 
+  width: 30%; 
+  font-weight: 700; 
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.meta-value { 
+  color: var(--text-main); 
+  font-size: 0.9rem; 
+  line-height: 1.5;
+}
+
+@media (max-width: 600px) {
+  .meta-key { width: 40%; font-size: 0.7rem; }
+  .meta-value { font-size: 0.85rem; }
+}
 </style>

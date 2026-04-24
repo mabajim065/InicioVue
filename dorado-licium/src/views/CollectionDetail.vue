@@ -84,12 +84,30 @@ export default {
 </script>
 
 <style scoped>
-.back-btn { 
-  display: inline-block; color: var(--soft-pink); 
-  text-decoration: none; margin-bottom: 1.5rem; 
-  font-size: 0.9rem; transition: color 0.3s;
-  background: transparent; border: none; cursor: pointer; padding: 0;
+.collection-detail {
+  padding-bottom: 5rem;
 }
-.back-btn:hover { color: var(--primary-pink); }
+.back-btn { 
+  display: inline-block; 
+  color: var(--gold-medium); 
+  text-decoration: none; 
+  margin-bottom: 2.5rem; 
+  font-size: 0.85rem; 
+  transition: all 0.3s;
+  background: transparent; 
+  border: 1px solid var(--gold-light); 
+  cursor: pointer; 
+  padding: 0.6rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.back-btn:hover { 
+  color: var(--gold-dark); 
+  border-color: var(--gold-dark);
+  background: var(--gold-soft);
+  transform: translateX(-5px);
+}
 </style>
 

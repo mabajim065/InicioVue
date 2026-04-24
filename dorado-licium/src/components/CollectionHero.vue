@@ -36,34 +36,57 @@ export default {
 <style scoped>
 .collection-hero {
   width: 100%;
-  min-height: 280px;
+  min-height: 400px;
   background-size: cover;
   background-position: center;
-  background-color: var(--glass-pink);
-  border-radius: 16px;
-  margin-bottom: 2rem;
+  background-color: var(--gold-soft);
+  border-radius: 24px;
+  margin-bottom: 3rem;
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: flex-end;
+  border: 1px solid var(--gold-light);
 }
 .collection-hero.no-image {
-  background: linear-gradient(135deg, rgba(255,77,141,0.15), rgba(255,133,177,0.05));
-  border: 1px solid rgba(255,133,177,0.2);
+  background: white;
   align-items: center;
   justify-content: center;
 }
+.collection-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(74, 64, 49, 0.9) 0%, rgba(74, 64, 49, 0.2) 50%, transparent 100%);
+  pointer-events: none;
+}
 .collection-hero-overlay {
+  position: relative;
   width: 100%;
-  padding: 2rem;
-  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);
+  padding: 4rem;
+  z-index: 2;
 }
 .no-image .collection-hero-overlay {
-  background: none;
   text-align: center;
 }
-.collection-hero h1 { font-size: 2rem; color: #fff; margin-bottom: 0.4rem; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
-.no-image .collection-hero h1 { color: var(--text-main); text-shadow: none; }
-.col-description { color: rgba(255,255,255,0.85); line-height: 1.6; max-width: 800px; font-size: 0.95rem; }
-.no-image .col-description { color: var(--text-body); }
+.collection-hero h1 { 
+  font-size: clamp(2rem, 5vw, 3.5rem); 
+  color: #fff; 
+  margin-bottom: 1rem; 
+  font-family: var(--font-serif);
+  font-weight: 700;
+  line-height: 1.1;
+}
+.no-image .collection-hero h1 { 
+  background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-medium) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.col-description { 
+  color: rgba(255,255,255,0.8); 
+  line-height: 1.7; 
+  max-width: 700px; 
+  font-size: 1.1rem; 
+}
+.no-image .col-description { color: var(--text-muted); }
 </style>

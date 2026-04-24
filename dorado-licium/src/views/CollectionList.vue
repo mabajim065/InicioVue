@@ -68,40 +68,105 @@ export default {
 </script>
 
 <style scoped>
-.page-header { text-align: center; margin-bottom: 3rem; }
+.collection-list {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.page-header { 
+  text-align: center; 
+  margin-bottom: 5rem;
+  position: relative;
+}
+
 .page-header h1 {
-  font-size: 3.5rem;
-  margin-bottom: 0.5rem;
-  background: var(--heading-gradient);
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  margin-bottom: 1rem;
+  font-family: var(--font-serif);
+  background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-medium) 100%);
   -webkit-background-clip: text;
-  background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: -1px;
+  letter-spacing: -2px;
 }
-.page-header p { color: var(--soft-pink); font-size: 1.1rem; opacity: 0.8; }
+
+.page-header p { 
+  color: var(--text-muted); 
+  font-size: 1.1rem; 
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.page-header::after {
+  content: '✥';
+  position: absolute;
+  bottom: -2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--gold-medium);
+  font-size: 1.8rem;
+}
 
 .collections-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  margin-bottom: 3rem;
-  align-items: stretch;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 3rem;
+  margin-bottom: 5rem;
 }
 
 .error {
-  text-align: center; padding: 3rem;
-  background: rgba(255, 77, 141, 0.05);
-  border: 1px dashed var(--primary-pink);
-  border-radius: 12px;
-  color: var(--soft-pink);
+  text-align: center; 
+  padding: 4rem;
+  background: var(--gold-soft);
+  border: 1.5px solid var(--gold-light);
+  border-radius: 20px;
+  color: var(--text-main);
+  max-width: 600px;
+  margin: 0 auto;
 }
-.loading-container { text-align: center; padding: 4rem 0; color: var(--loading-text); }
-.spinner { width: 40px; height: 40px; border: 3px solid var(--spinner-track); border-top-color: #ff4d8d; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1rem; }
-@keyframes spin { to { transform: rotate(360deg); } }
+
+.error button {
+  margin-top: 1.5rem;
+  padding: 0.8rem 2rem;
+  background: var(--gold-medium);
+  color: white;
+  border-radius: 50px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.error button:hover {
+  background: var(--gold-dark);
+  transform: translateY(-2px);
+}
+
+.loading-container { 
+  text-align: center; 
+  padding: 6rem 0; 
+  color: var(--text-muted); 
+}
+
+.spinner { 
+  width: 50px; 
+  height: 50px; 
+  border: 2px solid var(--gold-light); 
+  border-top-color: var(--gold-dark); 
+  border-radius: 50%; 
+  animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite; 
+  margin: 0 auto 1.5rem; 
+}
+
+@keyframes spin { 
+  to { transform: rotate(360deg); } 
+}
+
 @media (max-width: 768px) {
-  .page-header h1 { font-size: 2rem; }
-  .collections-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+  .page-header h1 { font-size: 2.5rem; }
+  .collections-grid { 
+    grid-template-columns: 1fr; 
+    gap: 2rem; 
+  }
 }
 </style>
