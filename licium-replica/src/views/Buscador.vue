@@ -1,8 +1,15 @@
 <template>
   <div class="buscador">
     <div class="page-header">
-      <h1>Buscador</h1>
-      <p>Busca registros por texto o filtra por colección</p>
+      <div class="header-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+      </div>
+      <div class="header-content">
+        <p class="eyebrow">Potente herramienta de filtrado</p>
+        <h1>Buscador</h1>
+        <p class="subtitle">Encuentra registros históricos y multimedia filtrando por colecciones o texto libre</p>
+      </div>
     </div>
     <div class="search-form">
       <input
@@ -133,69 +140,141 @@ export default {
 </script>
 
 <style scoped>
-.page-header { text-align: center; margin-bottom: 2.5rem; }
-.page-header h1 {
-  font-size: 3.5rem;
-  font-weight: 800;
+.page-header {
+  position: relative;
+  text-align: center;
+  padding: 5rem 2rem 4rem;
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--section-card-border);
+}
+
+.header-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.1; }
+.blob-1 { width: 300px; height: 300px; background: var(--primary-pink); top: -100px; left: -50px; animation: drift 10s ease-in-out infinite alternate; }
+.blob-2 { width: 250px; height: 250px; background: var(--soft-pink); bottom: -80px; right: -50px; animation: drift 12s ease-in-out infinite alternate-reverse; }
+
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(20px, 15px) scale(1.1); }
+}
+
+.header-content { position: relative; z-index: 1; }
+
+.eyebrow {
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: -1px;
+  letter-spacing: 3px;
+  color: var(--soft-pink);
+  margin-bottom: 1rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.page-header h1 {
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  margin-bottom: 1rem;
   background: var(--heading-gradient);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 0.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -2px;
+  line-height: 1;
 }
-.page-header p { color: var(--soft-pink); opacity: 0.8; font-size: 1.05rem; }
 
-.search-form { max-width: 700px; margin: 0 auto 3rem; display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+.page-header .subtitle {
+  color: var(--hero-desc-color);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.search-form {
+  max-width: 800px;
+  margin: -1.5rem auto 4rem;
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--section-card-border);
+  border-radius: 20px;
+  position: relative;
+  z-index: 5;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
 
 .search-input {
   width: 100%;
-  padding: 1rem 1.5rem;
+  padding: 1.2rem 1.8rem;
   background: var(--input-bg);
-  border: 1px solid rgba(255, 133, 177, 0.2);
-  border-radius: 50px;
+  border: 1px solid rgba(255, 133, 177, 0.15);
+  border-radius: 12px;
   color: var(--input-color);
   font-size: 1rem;
   outline: none;
-  transition: border-color 0.3s, background 0.3s, color 0.3s;
+  transition: all 0.3s;
   box-sizing: border-box;
 }
-.search-input:focus { border-color: var(--primary-pink); }
-.search-input::placeholder { color: var(--input-placeholder); }
+
+.search-input:focus {
+  border-color: var(--primary-pink);
+  box-shadow: 0 0 0 4px rgba(255, 77, 141, 0.1);
+}
+
+.search-input::placeholder { color: rgba(255, 255, 255, 0.25); }
 
 .search-select {
   width: 100%;
-  padding: 1rem 1.5rem;
+  padding: 1.2rem 1.8rem;
+  padding-right: 3rem;
   background: var(--input-bg);
-  border: 1px solid rgba(255, 133, 177, 0.2);
-  border-radius: 50px;
+  border: 1px solid rgba(255, 133, 177, 0.15);
+  border-radius: 12px;
   color: var(--input-color);
   font-size: 1rem;
   outline: none;
   cursor: pointer;
-  transition: border-color 0.3s, background 0.3s, color 0.3s;
+  transition: all 0.3s;
   box-sizing: border-box;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ff85b1' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 1.5rem center;
-  background-color: var(--input-bg);
 }
-.search-select:focus { border-color: var(--primary-pink); }
+
+.search-select:focus {
+  border-color: var(--primary-pink);
+  box-shadow: 0 0 0 4px rgba(255, 77, 141, 0.1);
+}
 .search-select option { background: var(--select-option-bg); color: var(--input-color); }
 
 .btn-buscar {
-  padding: 0.9rem 2.5rem;
+  padding: 0 2.5rem;
+  height: 100%;
   background: linear-gradient(135deg, #ff4d8d, #ff85b1);
   border: none;
-  border-radius: 50px;
+  border-radius: 12px;
   color: #fff;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
   transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(255, 77, 141, 0.25);
 }
-.btn-buscar:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 77, 141, 0.4); }
+
+.btn-buscar:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(255, 77, 141, 0.4);
+}
 
 .results-count {
   color: var(--results-count-color);
@@ -211,8 +290,17 @@ export default {
 
 .empty, .initial { text-align: center; padding: 4rem 0; color: var(--text-faint); font-size: 1.1rem; }
 
+@media (max-width: 850px) {
+  .search-form {
+    grid-template-columns: 1fr;
+    margin-top: -2rem;
+    padding: 1rem;
+  }
+  .btn-buscar { height: 3.5rem; }
+}
+
 @media (max-width: 768px) {
-  .page-header h1 { font-size: 2rem; }
+  .page-header h1 { font-size: 2.5rem; }
   .results-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
 }
 </style>

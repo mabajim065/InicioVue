@@ -1,8 +1,15 @@
 <template>
   <div class="collection-list">
     <div class="page-header">
-      <h1>Colecciones</h1>
-      <p>Explora el catálogo de colecciones</p>
+      <div class="header-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+      </div>
+      <div class="header-content">
+        <p class="eyebrow">Explora el catálogo</p>
+        <h1>Colecciones</h1>
+        <p class="subtitle">Descubre las agrupaciones temáticas y fondos digitales</p>
+      </div>
     </div>
     <div v-if="loading" class="loading-container">
       <div class="spinner"></div>
@@ -68,19 +75,59 @@ export default {
 </script>
 
 <style scoped>
-.page-header { text-align: center; margin-bottom: 3rem; }
+.page-header {
+  position: relative;
+  text-align: center;
+  padding: 5rem 2rem 4rem;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--section-card-border);
+}
+
+.header-bg { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.1; }
+.blob-1 { width: 300px; height: 300px; background: var(--primary-pink); top: -100px; left: -50px; animation: drift 10s ease-in-out infinite alternate; }
+.blob-2 { width: 250px; height: 250px; background: var(--soft-pink); bottom: -80px; right: -50px; animation: drift 12s ease-in-out infinite alternate-reverse; }
+
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(20px, 15px) scale(1.1); }
+}
+
+.header-content { position: relative; z-index: 1; }
+
+.eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--soft-pink);
+  margin-bottom: 1rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
 .page-header h1 {
-  font-size: 3.5rem;
-  margin-bottom: 0.5rem;
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  margin-bottom: 1rem;
   background: var(--heading-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: -1px;
+  letter-spacing: -2px;
+  line-height: 1;
 }
-.page-header p { color: var(--soft-pink); font-size: 1.1rem; opacity: 0.8; }
+
+.page-header .subtitle {
+  color: var(--hero-desc-color);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
 
 .collections-grid {
   display: grid;
