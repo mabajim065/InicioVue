@@ -14,9 +14,6 @@
           <router-link to="/collections" class="nav-link" active-class="active">Colecciones</router-link>
           <router-link to="/media" class="nav-link" active-class="active">Multimedia</router-link>
           <router-link to="/buscador" class="nav-link" active-class="active">Buscador</router-link>
-          <button class="nav-icon search-btn" aria-label="Buscar">
-            <span class="icon">🔍</span>
-          </button>
         </div>
 
         <button class="hamburger" @click="menuAbierto = !menuAbierto" aria-label="Menú">
@@ -133,19 +130,7 @@ export default {
   width: 60%;
 }
 
-.nav-icon {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  opacity: 0.7;
-  transition: opacity 0.3s;
-}
 
-.nav-icon:hover {
-  opacity: 1;
-}
 
 /* Hamburguesa */
 .hamburger {
