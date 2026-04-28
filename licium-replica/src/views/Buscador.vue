@@ -28,6 +28,20 @@
       <button class="btn-buscar" @click="buscar">Buscar →</button>
     </div>
 
+    <div class="search-recommendations" v-if="!loading && resultados.length === 0">
+      <p class="recommendations-title">Sugerencias de búsqueda:</p>
+      <div class="recommendations-list">
+        <button 
+          v-for="sug in sugerencias" 
+          :key="sug" 
+          class="recommendation-tag"
+          @click="setSearch(sug)"
+        >
+          {{ sug }}
+        </button>
+      </div>
+    </div>
+
     <LoadingState v-if="loading" message="Buscando resultados..." />
     
     <div v-else-if="buscado && resultados.length === 0" class="empty">
@@ -65,7 +79,8 @@ export default {
       buscado: false,
       currentPage: 1,
       totalResultados: 0,
-      limit: 24
+      limit: 24,
+      sugerencias: ['Fotografía', 'Granada', 'Siglo XIX', 'Ayuntamiento', 'Archivo', 'Patrimonio', 'Pintura', 'Grabado']
     }
   },
   computed: {
@@ -134,6 +149,10 @@ export default {
       this.updateUrl()
       this.fetchResultados()
       window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+    setSearch(term) {
+      this.query = term
+      this.buscar()
     }
   }
 }
@@ -196,7 +215,7 @@ export default {
 
 .search-form {
   max-width: 800px;
-  margin: -1.5rem auto 4rem;
+  margin: -1.5rem auto 1.5rem; /* Reduced bottom margin to bring recommendations closer */
   display: grid;
   grid-template-columns: 2fr 1fr auto;
   gap: 1rem;
@@ -208,6 +227,52 @@ export default {
   position: relative;
   z-index: 5;
   box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.search-recommendations {
+  max-width: 800px;
+  margin: 0 auto 3rem;
+  text-align: center;
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.recommendations-title {
+  color: var(--text-subtle);
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.recommendations-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.recommendation-tag {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 133, 177, 0.15);
+  color: var(--soft-pink);
+  padding: 0.5rem 1.2rem;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.recommendation-tag:hover {
+  background: var(--glass-pink);
+  border-color: var(--primary-pink);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 77, 141, 0.2);
 }
 
 .search-input {

@@ -33,21 +33,37 @@
       </div>
       <Pagination :current-page="currentPage" :total-pages="totalPages" @page-change="goToPage" />
     </template>
-    <div v-else class="initial">
-      <p>Escribe algo o elige una colección y pulsa buscar</p>
+    <div v-else class="initial recommendations-container">
+      <h2 class="recommendations-title">Sugerencias para empezar</h2>
+      <p class="recommendations-subtitle">Descubre contenido destacado o usa el buscador para explorar más</p>
+
+      <LoadingState v-if="loadingRecomendaciones" message="Cargando recomendaciones..." />
+
+      <div v-else class="recommendations-grid">
+        <div class="recommendation-column" v-if="recomendacionRecord">
+          <h3>Registro Destacado</h3>
+          <RecordCard :record="recomendacionRecord" />
+        </div>
+        <div class="recommendation-column" v-if="recomendacionCollection">
+          <h3>Colección Destacada</h3>
+          <CollectionCard :collection="recomendacionCollection" />
+        </div>
+
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { searchRecords, getCollections } from '../api/licium.js'
+import { searchRecords, getCollections, getRecords } from '../api/licium.js'
 import RecordCard from '../components/RecordCard.vue'
+import CollectionCard from '../components/CollectionCard.vue'
 import Pagination from '../components/Pagination.vue'
 import LoadingState from '../components/LoadingState.vue'
 import { getTitle } from '../utils/data-utils.js'
 
 export default {
-  components: { RecordCard, Pagination, LoadingState },
+  components: { RecordCard, CollectionCard, Pagination, LoadingState },
   data() {
     return {
       query: '',
@@ -58,7 +74,10 @@ export default {
       buscado: false,
       currentPage: 1,
       totalResultados: 0,
-      limit: 24
+      limit: 24,
+      recomendacionRecord: null,
+      recomendacionCollection: null,
+      loadingRecomendaciones: false
     }
   },
   computed: {
@@ -75,6 +94,8 @@ export default {
     if (this.query || this.coleccionSeleccionada) {
       this.buscado = true
       this.fetchResultados()
+    } else {
+      this.cargarRecomendaciones()
     }
   },
   methods: {
@@ -86,6 +107,26 @@ export default {
         const dataRaw = data?.items || data?.data?.items || data?.data || []
         this.colecciones = Array.isArray(dataRaw) ? dataRaw.filter(c => c !== null) : []
       } catch (err) { console.error('Error cargando colecciones:', err) }
+    },
+    async cargarRecomendaciones() {
+      this.loadingRecomendaciones = true
+      try {
+        const [recRes, colRes] = await Promise.all([
+          getRecords(0, 1),
+          getCollections(0, 1)
+        ])
+        const recData = recRes.data?.items || recRes.data?.data?.items || recRes.data?.data || []
+        const colData = colRes.data?.items || colRes.data?.data?.items || colRes.data?.data || []
+
+        
+        if (Array.isArray(recData) && recData.length > 0) this.recomendacionRecord = recData[0]
+        if (Array.isArray(colData) && colData.length > 0) this.recomendacionCollection = colData[0]
+
+      } catch (err) {
+        console.error('Error cargando recomendaciones:', err)
+      } finally {
+        this.loadingRecomendaciones = false
+      }
     },
     updateUrl() {
       const q = {}
@@ -209,10 +250,65 @@ export default {
 }
 .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
 
-.empty, .initial { text-align: center; padding: 4rem 0; color: var(--text-faint); font-size: 1.1rem; }
+.empty { text-align: center; padding: 4rem 0; color: var(--text-faint); font-size: 1.1rem; }
+
+.recommendations-container {
+  margin-top: 1rem;
+  text-align: center;
+}
+.recommendations-title {
+  font-size: 2.2rem;
+  color: #c5a059;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-serif, serif);
+}
+.recommendations-subtitle {
+  color: var(--text-faint, #999);
+  margin-bottom: 3rem;
+  font-size: 1.1rem;
+}
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4rem;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.recommendation-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Unificar el tamaño de las tarjetas para que sean cuadradas y estéticas */
+.recommendation-column :deep(a.record-card-golden),
+.recommendation-column :deep(a.collection-card-golden) {
+  aspect-ratio: 1 / 1 !important;
+  height: auto !important;
+  width: 100%;
+  border-radius: 24px;
+  box-shadow: 0 15px 35px rgba(185, 158, 124, 0.15);
+}
+
+.recommendation-column :deep(a.record-card-golden:hover),
+.recommendation-column :deep(a.collection-card-golden:hover) {
+  box-shadow: 0 25px 50px rgba(138, 109, 59, 0.3);
+}
+
+.recommendation-column h3 {
+  font-size: 1.1rem;
+  color: #c5a059;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+}
 
 @media (max-width: 768px) {
   .page-header h1 { font-size: 2rem; }
   .results-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+  .recommendations-grid { grid-template-columns: 1fr; }
 }
 </style>
