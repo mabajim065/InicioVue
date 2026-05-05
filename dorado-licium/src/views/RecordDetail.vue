@@ -6,11 +6,15 @@
     <ErrorState v-else-if="error" :message="error" />
 
     <template v-else-if="record">
-      <button @click="$router.back()" class="back-btn">← Volver</button>
+      <div class="header-actions">
+        <button @click="$router.back()" class="back-btn">← Volver</button>
+        <button @click="downloadPDF" class="pdf-btn">📄 Descargar PDF</button>
+      </div>
 
-      <PdfNoticeBanner v-if="hasPdf" :media-id="pdfMediaId" />
+      <div ref="pdfContent" class="pdf-wrapper">
+        <PdfNoticeBanner v-if="hasPdf" :media-id="pdfMediaId" />
 
-      <div class="detail-layout">
+        <div class="detail-layout">
 
         <!-- Columna izquierda: galería -->
         <RecordGallery
@@ -28,8 +32,9 @@
             :canonical-rows="canonicalRows"
             :joined-rows="joinedRows"
           />
-        </div>
+          </div>
 
+        </div>
       </div>
     </template>
 
@@ -37,6 +42,7 @@
 </template>
 
 <script>
+import html2pdf from 'html2pdf.js'
 import { getRecordDetail } from '../api/licium.js'
 import PdfNoticeBanner from '../components/PdfNoticeBanner.vue'
 import RecordGallery   from '../components/RecordGallery.vue'
@@ -186,6 +192,19 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    downloadPDF() {
+      const element = this.$refs.pdfContent;
+      const title = this.getTitle ? this.getTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'record';
+      const opt = {
+        margin:       10,
+        filename:     `${title}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      html2pdf().set(opt).from(element).save();
     }
   }
 }
@@ -201,6 +220,41 @@ export default {
   border-radius: 50px;
 }
 .back-btn:hover { color: var(--gold-dark); border-color: var(--gold-dark); background: var(--gold-soft); }
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.pdf-btn {
+  display: inline-flex; 
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff; 
+  text-decoration: none; 
+  font-size: 0.9rem; 
+  transition: all 0.3s;
+  background: var(--gold-medium); 
+  border: 1px solid var(--gold-medium); 
+  cursor: pointer; 
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-weight: 600;
+}
+
+.pdf-btn:hover {
+  background: var(--gold-dark);
+  border-color: var(--gold-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(185, 158, 124, 0.3);
+}
+
+.pdf-wrapper {
+  background-color: var(--bg-marble);
+  padding: 1rem;
+  border-radius: 8px;
+}
 
 .detail-layout {
   display: grid;

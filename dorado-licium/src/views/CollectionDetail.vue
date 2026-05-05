@@ -5,24 +5,30 @@
     <ErrorState v-else-if="error" :message="error" />
 
     <template v-else-if="collection">
-      <button @click="$router.back()" class="back-btn">← Volver atrás</button>
+      <div class="header-actions">
+        <button @click="$router.back()" class="back-btn">← Volver atrás</button>
+        <button @click="downloadPDF" class="pdf-btn">📄 Descargar PDF</button>
+      </div>
       
-      <CollectionHero :collection="collection" />
+      <div ref="pdfContent" class="pdf-wrapper">
+        <CollectionHero :collection="collection" />
       
       <CollectionMetadata :collection="collection" />
       
-      <CollectionRecordsSection 
-        :records="records" 
-        :loading="loadingRecords" 
-        :current-page="currentPage" 
-        :total-pages="totalPages" 
-        @page-change="goToPage" 
-      />
+        <CollectionRecordsSection 
+          :records="records" 
+          :loading="loadingRecords" 
+          :current-page="currentPage" 
+          :total-pages="totalPages" 
+          @page-change="goToPage" 
+        />
+      </div>
     </template>
   </div>
 </template>
 
 <script>
+import html2pdf from 'html2pdf.js'
 import { getCollectionDetail, getRecords } from '../api/licium.js'
 import CollectionHero from '../components/CollectionHero.vue'
 import CollectionMetadata from '../components/CollectionMetadata.vue'
@@ -78,7 +84,20 @@ export default {
       } catch (err) { console.error('Error records:', err) }
       finally { this.loadingRecords = false }
     },
-    goToPage(page) { this.currentPage = page; this.fetchRecords(); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+    goToPage(page) { this.currentPage = page; this.fetchRecords(); window.scrollTo({ top: 0, behavior: 'smooth' }) },
+    downloadPDF() {
+      const element = this.$refs.pdfContent;
+      const title = this.collection.title ? this.collection.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'coleccion';
+      const opt = {
+        margin:       10,
+        filename:     `${title}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      html2pdf().set(opt).from(element).save();
+    }
   }
 }
 </script>
@@ -108,6 +127,44 @@ export default {
   border-color: var(--gold-dark);
   background: var(--gold-soft);
   transform: translateX(-5px);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+
+.pdf-btn {
+  display: inline-flex; 
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff; 
+  text-decoration: none; 
+  font-size: 0.85rem; 
+  transition: all 0.3s;
+  background: var(--gold-medium); 
+  border: 1px solid var(--gold-medium); 
+  cursor: pointer; 
+  padding: 0.6rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.pdf-btn:hover {
+  background: var(--gold-dark);
+  border-color: var(--gold-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(185, 158, 124, 0.3);
+}
+
+/* Ensure pdf wrapper has a white/marble background during pdf export if needed */
+.pdf-wrapper {
+  background-color: var(--bg-marble);
+  padding: 1rem;
+  border-radius: 8px;
 }
 </style>
 
