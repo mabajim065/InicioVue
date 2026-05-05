@@ -16,6 +16,11 @@
           <router-link to="/buscador" class="nav-link" active-class="active">Buscador</router-link>
         </div>
 
+        <button @click="toggleDarkMode" class="dark-mode-toggle" aria-label="Toggle Dark Mode">
+          <span v-if="isDarkMode">☀️</span>
+          <span v-else>🌙</span>
+        </button>
+
         <button class="hamburger" @click="menuAbierto = !menuAbierto" aria-label="Menú">
           <span :class="{ open: menuAbierto }"></span>
           <span :class="{ open: menuAbierto }"></span>
@@ -38,7 +43,29 @@
 export default {
   data() {
     return {
-      menuAbierto: false
+      menuAbierto: false,
+      isDarkMode: false
+    }
+  },
+  mounted() {
+    if (localStorage.getItem('theme') === 'dark') {
+      this.isDarkMode = true;
+      document.body.classList.add('dark-mode');
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme')) {
+      this.isDarkMode = true;
+      document.body.classList.add('dark-mode');
+    }
+  },
+  methods: {
+    toggleDarkMode() {
+      this.isDarkMode = !this.isDarkMode;
+      if (this.isDarkMode) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('theme', 'light');
+      }
     }
   },
   watch: {
@@ -128,6 +155,20 @@ export default {
 
 .nav-link.active::after {
   width: 60%;
+}
+
+.dark-mode-toggle {
+  font-size: 1.2rem;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  color: var(--text-main);
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.1);
 }
 
 
