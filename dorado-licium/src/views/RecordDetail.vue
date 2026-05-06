@@ -56,7 +56,7 @@ import {
   applyFieldsOrder,
   extractMultilingual
 } from '../utils/data-utils.js'
-import { toAbsUrl, getResizedUrl, isPdf, getAttachmentId } from '../utils/image.js'
+import { toAbsUrl, getResizedUrl, isPdf, getAttachmentId, getThumbnailUrl } from '../utils/image.js'
 
 export default {
   components: { 
