@@ -33,7 +33,15 @@ body {
 .content {
   flex: 1;
   width: 100%;
-  padding-top: 80px; /* Space for absolute navbar */
+  padding: 100px 2rem 2rem 2rem; /* Space for absolute navbar + global padding */
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .content {
+    padding: 90px 1.2rem 2rem 1.2rem;
+  }
 }
 
 /* Global scrollbar aesthetic */
