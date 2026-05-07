@@ -24,3 +24,17 @@ body {
   padding: 0;
   text-align: left;
 }
+
+@media print {
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Evitar que las tarjetas se corten a la mitad en el PDF */
+  .base-card, .about-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}

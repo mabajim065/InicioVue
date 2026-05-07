@@ -79,8 +79,7 @@ export default {
       return getThumbnailUrl(this.media, 'large')
     },
     lightboxUrl() {
-      // Intentamos original, si no large
-      return getThumbnailUrl(this.media, 'original') || getThumbnailUrl(this.media, 'large')
+      return this.fileUrl || getThumbnailUrl(this.media, 'large')
     },
     isPdf() {
       if (this.media?.attachment?.mimetype === 'application/pdf') return true

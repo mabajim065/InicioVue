@@ -106,7 +106,7 @@ export default {
       if (mainImageUrl) {
         result.push({ 
           display: mainImageUrl, // Ya está en large por getThumbnailUrl
-          large: getResizedUrl(mainImageUrl, 'original'), 
+          large: this.record?.media_items?.[0]?.path ? toAbsUrl(this.record.media_items[0].path) : mainImageUrl, 
           isPdf: false, 
           id: null, 
           attachId: mainAttachId 
@@ -118,7 +118,7 @@ export default {
 
       for (const item of items) {
         let displayUrl = getThumbnailUrl(item, 'large')
-        let largeUrl = getResizedUrl(displayUrl, 'original')
+        let largeUrl = item.path ? toAbsUrl(item.path) : displayUrl
 
         if (!displayUrl && item.path) {
           displayUrl = toAbsUrl(item.path)
