@@ -9,6 +9,7 @@
       <div class="header-actions">
         <button @click="$router.back()" class="back-btn">← Volver</button>
         <button @click="downloadPDF" class="pdf-btn">📄 Descargar PDF</button>
+        <button @click="openWikipedia" class="wiki-btn">🌐 Wikipedia</button>
       </div>
 
       <div ref="pdfContent" class="pdf-wrapper">
@@ -23,15 +24,18 @@
           :class="{ 'no-image-col': !galleryImages.length }"
         />
 
-        <!-- Columna derecha: título + metadatos -->
-        <div class="detail-info">
-          <h1>{{ getTitle }}</h1>
-          <RecordMetadata
-            :collections="getCollections"
-            :description="getDescription"
-            :canonical-rows="canonicalRows"
-            :joined-rows="joinedRows"
-          />
+          <!-- Columna derecha: título + metadatos + Wikipedia -->
+          <div class="detail-info">
+            <h1>{{ getTitle }}</h1>
+            <RecordMetadata
+              :collections="getCollections"
+              :description="getDescription"
+              :canonical-rows="canonicalRows"
+              :joined-rows="joinedRows"
+            />
+
+            <!-- Panel de Wikipedia — se muestra solo si hay resultado -->
+            <WikipediaPanel :record-title="getTitle" />
           </div>
 
         </div>
@@ -49,6 +53,7 @@ import RecordGallery   from '../components/RecordGallery.vue'
 import RecordMetadata  from '../components/RecordMetadata.vue'
 import LoadingState    from '../components/LoadingState.vue'
 import ErrorState      from '../components/ErrorState.vue'
+import WikipediaPanel  from '../components/WikipediaPanel.vue'
 import { 
   getTitle, 
   getDescription, 
@@ -64,7 +69,8 @@ export default {
     RecordGallery, 
     RecordMetadata, 
     LoadingState, 
-    ErrorState 
+    ErrorState,
+    WikipediaPanel
   },
 
   data() {
@@ -205,6 +211,18 @@ export default {
       };
       
       html2pdf().set(opt).from(element).save();
+    },
+    openWikipedia() {
+      const title = this.getTitle;
+      if (!title) return;
+      const cleanTitle = title
+        .replace(/\[.*?\]/g, '')
+        .replace(/\(.*?\)/g, '')
+        .replace(/\d{4}/g, '')
+        .replace(/[,;:]/g, '')
+        .trim();
+      const url = `https://es.wikipedia.org/wiki/${encodeURIComponent(cleanTitle)}`;
+      window.open(url, '_blank', 'noopener');
     }
   }
 }
@@ -248,6 +266,28 @@ export default {
   border-color: var(--gold-dark);
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(185, 158, 124, 0.3);
+}
+
+.wiki-btn {
+  display: inline-flex; 
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--gold-dark); 
+  text-decoration: none; 
+  font-size: 0.9rem; 
+  transition: all 0.3s;
+  background: transparent; 
+  border: 1px solid var(--gold-medium); 
+  cursor: pointer; 
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-weight: 600;
+}
+
+.wiki-btn:hover {
+  background: var(--gold-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(185, 158, 124, 0.2);
 }
 
 .pdf-wrapper {
